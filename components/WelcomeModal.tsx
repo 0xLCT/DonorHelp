@@ -82,18 +82,19 @@ const styles = StyleSheet.create({
   modalContent: {
     width: 300,
     padding: 20,
-    backgroundColor: "white",
+    backgroundColor: "#222", // Updated background color
     borderRadius: 10,
     alignItems: "center",
   },
   modalText: {
     marginBottom: 5,
     fontSize: 18,
+    color: "white", // Updated text color
   },
   link: {
     marginBottom: 10,
     fontSize: 16,
-    color: "blue",
+    color: "#87CEEB", // Updated to a lighter blue color
     textDecorationLine: "underline",
     fontWeight: "bold",
   },
