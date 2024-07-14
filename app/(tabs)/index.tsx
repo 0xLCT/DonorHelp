@@ -3,6 +3,7 @@ import { SafeAreaView, StyleSheet, View, Button, Alert, Platform } from 'react-n
 import * as Calendar from 'expo-calendar';
 import * as Linking from 'expo-linking';
 import { Picker } from '@react-native-picker/picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function TelaInicial() {
   const [dia, setDia] = useState('');
@@ -66,36 +67,45 @@ export default function TelaInicial() {
       </View>
       <View style={estilos.secao}>
         <View style={estilos.containerPicker}>
-          <Picker
-            selectedValue={dia}
-            style={estilos.picker}
-            onValueChange={(itemValue) => setDia(itemValue)}
-          >
-            <Picker.Item label="Dia" value="" />
-            {[...Array(31).keys()].map(i => (
-              <Picker.Item key={i} label={`${i + 1}`} value={`${i + 1}`} />
-            ))}
-          </Picker>
-          <Picker
-            selectedValue={mes}
-            style={estilos.pickerMes}
-            onValueChange={(itemValue) => setMes(itemValue)}
-          >
-            <Picker.Item label="Mês" value="" />
-            {[...Array(12).keys()].map(i => (
-              <Picker.Item key={i} label={`${i + 1}`} value={`${i + 1}`} />
-            ))}
-          </Picker>
-          <Picker
-            selectedValue={ano}
-            style={estilos.pickerAno}
-            onValueChange={(itemValue) => setAno(itemValue)}
-          >
-            <Picker.Item label="Ano" value="" />
-            {[...Array(10).keys()].map(i => (
-              <Picker.Item key={i} label={`${anoAtual + i}`} value={`${anoAtual + i}`} />
-            ))}
-          </Picker>
+          <View style={estilos.pickerWrapper}>
+            <Picker
+              selectedValue={dia}
+              style={estilos.picker}
+              onValueChange={(itemValue) => setDia(itemValue)}
+            >
+              <Picker.Item label="Dia" value="" />
+              {[...Array(31).keys()].map(i => (
+                <Picker.Item key={i} label={`${i + 1}`} value={`${i + 1}`} />
+              ))}
+            </Picker>
+            <Icon name="arrow-drop-down" size={24} color="white" style={estilos.pickerIcon} />
+          </View>
+          <View style={estilos.pickerWrapper}>
+            <Picker
+              selectedValue={mes}
+              style={estilos.picker}
+              onValueChange={(itemValue) => setMes(itemValue)}
+            >
+              <Picker.Item label="Mês" value="" />
+              {[...Array(12).keys()].map(i => (
+                <Picker.Item key={i} label={`${i + 1}`} value={`${i + 1}`} />
+              ))}
+            </Picker>
+            <Icon name="arrow-drop-down" size={24} color="white" style={estilos.pickerIcon} />
+          </View>
+          <View style={estilos.pickerWrapper}>
+            <Picker
+              selectedValue={ano}
+              style={estilos.picker}
+              onValueChange={(itemValue) => setAno(itemValue)}
+            >
+              <Picker.Item label="Ano" value="" />
+              {[...Array(10).keys()].map(i => (
+                <Picker.Item key={i} label={`${anoAtual + i}`} value={`${anoAtual + i}`} />
+              ))}
+            </Picker>
+            <Icon name="arrow-drop-down" size={24} color="white" style={estilos.pickerIcon} />
+          </View>
         </View>
         <Button title="Agendar Evento" onPress={agendarEvento} />
       </View>
@@ -109,6 +119,7 @@ const estilos = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#111', // Background color updated
   },
   secao: {
     margin: 20,
@@ -118,22 +129,22 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  pickerWrapper: {
+    position: 'relative',
+    width: 120,
+  },
   picker: {
     height: 50,
-    width: 120,
+    width: '100%',
     marginHorizontal: 0,
     textAlign: 'center',
+    color: 'white', // Text color updated
+    backgroundColor: '#212121', // Background color updated
   },
-  pickerMes: {
-    height: 50,
-    width: 120, // Largura ajustada para o picker de mês
-    marginHorizontal: 0,
-    textAlign: 'center',
-  },
-  pickerAno: {
-    height: 50,
-    width: 120, // Largura ajustada para o picker de ano
-    marginHorizontal: 0,
-    textAlign: 'center',
+  pickerIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 13,
+    pointerEvents: 'none',
   },
 });
