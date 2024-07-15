@@ -44,7 +44,9 @@ export default function TabLayout() {
           title: "Info",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "information-circle" : "information-circle-outline"}
+              name={
+                focused ? "information-circle" : "information-circle-outline"
+              }
               color={color}
             />
           ),
