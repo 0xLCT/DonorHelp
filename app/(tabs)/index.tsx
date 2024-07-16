@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,18 +7,30 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import * as Calendar from "expo-calendar";
 import * as Linking from "expo-linking";
+import * as Calendar from "expo-calendar";
 import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
+// Componente principal da tela inicial
 export default function TelaInicial() {
+  // Estados para armazenar a data selecionada
   const [dia, setDia] = useState("");
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
   const anoAtual = new Date().getFullYear(); // Obtém o ano atual
 
-  // Função para buscar bancos no mapa
+  // Solicita permissão para acessar o calendário ao carregar o componente
+  useEffect(() => {
+    (async () => {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permissão de calendário não concedida");
+      }
+    })();
+  }, []);
+
+  // Função para abrir o mapa e buscar hemocentros
   const buscarBancos = () => {
     const url = Platform.select({
       ios: "maps:0,0?q=hemocentro",
@@ -31,46 +43,49 @@ export default function TelaInicial() {
     }
   };
 
-  // Função para agendar um evento no calendário
-  const agendarEvento = async () => {
-    const dataInicio = new Date(`${ano}-${mes}-${dia}T10:00:00`);
-    const dataFim = new Date(`${ano}-${mes}-${dia}T11:00:00`);
+  // Função para criar um evento no calendário
+  const criarEvento = async () => {
+    if (!dia || !mes || !ano) {
+      Alert.alert("Por favor, selecione uma data completa");
+      return;
+    }
 
-    const { status } = await Calendar.requestCalendarPermissionsAsync();
-    if (status === "granted") {
-      const fonteCalendarioPadrao =
-        Platform.OS === "ios"
-          ? await Calendar.getDefaultCalendarAsync()
-          : {
-              id: "default",
-              type: Calendar.CalendarType.LOCAL,
-              sourceId: "default",
-              name: "Calendário Expo",
-              isLocalAccount: true,
-            };
+    // Cria as datas de início e fim do evento
+    const startDate = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    const endDate = new Date(
+      parseInt(ano),
+      parseInt(mes) - 1,
+      parseInt(dia),
+      23,
+      59,
+      59
+    );
 
-      const idCalendario = await Calendar.createCalendarAsync({
-        title: "Calendário Expo",
-        color: "blue",
-        entityType: Calendar.EntityTypes.EVENT,
-        sourceId: fonteCalendarioPadrao.id || "default",
-        source: fonteCalendarioPadrao,
-        name: "nomeCalendarioInterno",
-        ownerAccount: "pessoal",
-        accessLevel: Calendar.CalendarAccessLevel.OWNER,
-      });
+    try {
+      // Obtém os calendários disponíveis
+      const calendars = await Calendar.getCalendarsAsync(
+        Calendar.EntityTypes.EVENT
+      );
+      const defaultCalendar = calendars.find((cal) => cal.allowsModifications);
 
-      await Calendar.createEventAsync(idCalendario, {
-        title: "Evento Agendado",
-        startDate: dataInicio,
-        endDate: dataFim,
+      if (!defaultCalendar) {
+        Alert.alert("Calendário padrão não encontrado");
+        return;
+      }
+
+      // Cria o evento no calendário padrão
+      await Calendar.createEventAsync(defaultCalendar.id, {
+        title: "Marcar doação de sangue",
+        startDate,
+        endDate,
+        allDay: true,
         timeZone: "GMT",
-        location: "Banco",
       });
-
-      Alert.alert("Evento agendado com sucesso!");
-    } else {
-      Alert.alert("Permissão para acessar o calendário não concedida");
+      Alert.alert("Evento criado com sucesso");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+      Alert.alert("Erro ao criar evento", errorMessage);
     }
   };
 
@@ -140,7 +155,7 @@ export default function TelaInicial() {
             />
           </View>
         </View>
-        <Button title="Agendar Evento" onPress={agendarEvento} />
+        <Button title="Criar Evento" onPress={criarEvento} />
       </View>
     </SafeAreaView>
   );
@@ -152,7 +167,7 @@ const estilos = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#111", // Background color updated
+    backgroundColor: "#111",
   },
   secao: {
     margin: 20,
@@ -171,8 +186,8 @@ const estilos = StyleSheet.create({
     width: "100%",
     marginHorizontal: 0,
     textAlign: "center",
-    color: "white", // Text color updated
-    backgroundColor: "#212121", // Background color updated
+    color: "white",
+    backgroundColor: "#212121",
   },
   pickerIcon: {
     position: "absolute",
