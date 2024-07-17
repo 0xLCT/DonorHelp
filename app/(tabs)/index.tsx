@@ -9,8 +9,7 @@ import {
 } from "react-native";
 import * as Linking from "expo-linking";
 import * as Calendar from "expo-calendar";
-import { Picker } from "@react-native-picker/picker";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import DatePicker from "../../components/DatePicker";
 
 // Componente principal da tela inicial
 export default function TelaInicial() {
@@ -95,66 +94,15 @@ export default function TelaInicial() {
         <Button title="Buscar Hemocentro" onPress={buscarBancos} />
       </View>
       <View style={estilos.secao}>
-        <View style={estilos.containerPicker}>
-          <View style={estilos.pickerWrapper}>
-            <Picker
-              selectedValue={dia}
-              style={estilos.picker}
-              onValueChange={(itemValue) => setDia(itemValue)}
-            >
-              <Picker.Item label="Dia" value="" />
-              {[...Array(31).keys()].map((i) => (
-                <Picker.Item key={i} label={`${i + 1}`} value={`${i + 1}`} />
-              ))}
-            </Picker>
-            <Icon
-              name="arrow-drop-down"
-              size={24}
-              color="white"
-              style={estilos.pickerIcon}
-            />
-          </View>
-          <View style={estilos.pickerWrapper}>
-            <Picker
-              selectedValue={mes}
-              style={estilos.picker}
-              onValueChange={(itemValue) => setMes(itemValue)}
-            >
-              <Picker.Item label="Mês" value="" />
-              {[...Array(12).keys()].map((i) => (
-                <Picker.Item key={i} label={`${i + 1}`} value={`${i + 1}`} />
-              ))}
-            </Picker>
-            <Icon
-              name="arrow-drop-down"
-              size={24}
-              color="white"
-              style={estilos.pickerIcon}
-            />
-          </View>
-          <View style={estilos.pickerWrapper}>
-            <Picker
-              selectedValue={ano}
-              style={estilos.picker}
-              onValueChange={(itemValue) => setAno(itemValue)}
-            >
-              <Picker.Item label="Ano" value="" />
-              {[...Array(10).keys()].map((i) => (
-                <Picker.Item
-                  key={i}
-                  label={`${anoAtual + i}`}
-                  value={`${anoAtual + i}`}
-                />
-              ))}
-            </Picker>
-            <Icon
-              name="arrow-drop-down"
-              size={24}
-              color="white"
-              style={estilos.pickerIcon}
-            />
-          </View>
-        </View>
+        <DatePicker
+          dia={dia}
+          setDia={setDia}
+          mes={mes}
+          setMes={setMes}
+          ano={ano}
+          setAno={setAno}
+          anoAtual={anoAtual}
+        />
         <Button title="Criar Evento" onPress={criarEvento} />
       </View>
     </SafeAreaView>
@@ -171,28 +119,5 @@ const estilos = StyleSheet.create({
   },
   secao: {
     margin: 20,
-  },
-  containerPicker: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  pickerWrapper: {
-    position: "relative",
-    width: 120,
-  },
-  picker: {
-    height: 50,
-    width: "100%",
-    marginHorizontal: 0,
-    textAlign: "center",
-    color: "white",
-    backgroundColor: "#212121",
-  },
-  pickerIcon: {
-    position: "absolute",
-    right: 10,
-    top: 13,
-    pointerEvents: "none",
   },
 });
