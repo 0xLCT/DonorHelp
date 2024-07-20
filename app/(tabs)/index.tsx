@@ -49,16 +49,20 @@ export default function TelaInicial() {
       return;
     }
 
-    // Cria as datas de início e fim do evento
-    const startDate = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
-    const endDate = new Date(
+    // Cria o objeto de data e define para meio-dia para evitar problemas de fuso horário
+    const eventDate = new Date(
       parseInt(ano),
       parseInt(mes) - 1,
       parseInt(dia),
-      23,
-      59,
-      59
+      12,
+      0,
+      0
     );
+
+    // Cria as datas de início e fim para o evento
+    const startDate = new Date(eventDate);
+    const endDate = new Date(eventDate);
+    endDate.setHours(23, 59, 59);
 
     try {
       // Obtém os calendários disponíveis
