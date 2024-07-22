@@ -9,6 +9,7 @@ import {
   BackHandler,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { strings } from "../app/locales/strings";
 
 interface WelcomeModalProps {
   visible: boolean;
@@ -37,7 +38,7 @@ export default function WelcomeModal({ visible, onClose }: WelcomeModalProps) {
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           {/* Texto do modal */}
-          <Text style={styles.modalText}>Você esta apto a doar sangue?</Text>
+          <Text style={styles.modalText}>{strings.modal.title}</Text>
           {/* Link para os requisitos de doação */}
           <Text
             style={styles.link}
@@ -47,7 +48,7 @@ export default function WelcomeModal({ visible, onClose }: WelcomeModalProps) {
               )
             }
           >
-            Requisitos
+            {strings.modal.requirements}
           </Text>
           <View style={styles.buttonContainer}>
             {/* Botão "Não" */}
@@ -55,14 +56,14 @@ export default function WelcomeModal({ visible, onClose }: WelcomeModalProps) {
               style={[styles.button, styles.buttonNo]}
               onPress={handleNo}
             >
-              <Text style={styles.buttonText}>Não</Text>
+              <Text style={styles.buttonText}>{strings.modal.no}</Text>
             </TouchableOpacity>
             {/* Botão "Sim" */}
             <TouchableOpacity
               style={[styles.button, styles.buttonYes]}
               onPress={handleYes}
             >
-              <Text style={styles.buttonText}>Sim</Text>
+              <Text style={styles.buttonText}>{strings.modal.yes}</Text>
             </TouchableOpacity>
           </View>
         </View>

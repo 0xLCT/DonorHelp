@@ -10,6 +10,7 @@ import {
 import * as Linking from "expo-linking";
 import * as Calendar from "expo-calendar";
 import DatePicker from "../../components/DatePicker";
+import { strings } from "../locales/strings";
 
 // Componente principal da tela inicial
 export default function TelaInicial() {
@@ -24,7 +25,7 @@ export default function TelaInicial() {
     (async () => {
       const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permissão de calendário não concedida");
+        Alert.alert(strings.alerts.permissionDenied);
       }
     })();
   }, []);
@@ -45,7 +46,7 @@ export default function TelaInicial() {
   // Função para criar um evento no calendário
   const criarEvento = async () => {
     if (!dia || !mes || !ano) {
-      Alert.alert("Por favor, selecione uma data completa");
+      Alert.alert(strings.alerts.selectDate);
       return;
     }
 
@@ -84,18 +85,18 @@ export default function TelaInicial() {
         allDay: true,
         timeZone: "GMT",
       });
-      Alert.alert("Evento criado com sucesso");
+      Alert.alert(strings.alerts.eventCreated);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Erro desconhecido";
-      Alert.alert("Erro ao criar evento", errorMessage);
+      Alert.alert(strings.alerts.eventError, errorMessage);
     }
   };
 
   return (
     <SafeAreaView style={estilos.container}>
       <View style={estilos.secao}>
-        <Button title="Buscar Hemocentro" onPress={buscarBancos} />
+        <Button title={strings.buttons.findBloodBank} onPress={buscarBancos} />
       </View>
       <View style={estilos.secao}>
         <DatePicker
@@ -107,7 +108,7 @@ export default function TelaInicial() {
           setAno={setAno}
           anoAtual={anoAtual}
         />
-        <Button title="Criar Evento" onPress={criarEvento} />
+        <Button title={strings.buttons.createEvent} onPress={criarEvento} />
       </View>
     </SafeAreaView>
   );
