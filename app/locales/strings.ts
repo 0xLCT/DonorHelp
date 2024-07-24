@@ -19,4 +19,5 @@ export const strings = {
     eventCreated: "Evento criado com sucesso",
     eventError: "Erro ao criar evento",
   },
+  datePickerLabel: "Marcar Lembrete de doação",
 };

@@ -6,6 +6,7 @@ import {
   Button,
   Alert,
   Platform,
+  Text,
 } from "react-native";
 import * as Linking from "expo-linking";
 import * as Calendar from "expo-calendar";
@@ -29,19 +30,6 @@ export default function TelaInicial() {
       }
     })();
   }, []);
-
-  // Função para abrir o mapa e buscar hemocentros
-  const buscarBancos = () => {
-    const url = Platform.select({
-      ios: "maps:0,0?q=hemocentro",
-      android: "geo:0,0?q=hemocentro",
-    });
-    if (url) {
-      Linking.openURL(url);
-    } else {
-      Alert.alert("Não foi possível determinar a URL específica da plataforma");
-    }
-  };
 
   // Função para criar um evento no calendário
   const criarEvento = async () => {
@@ -96,9 +84,7 @@ export default function TelaInicial() {
   return (
     <SafeAreaView style={estilos.container}>
       <View style={estilos.secao}>
-        <Button title={strings.buttons.findBloodBank} onPress={buscarBancos} />
-      </View>
-      <View style={estilos.secao}>
+        <Text style={estilos.label}>{strings.datePickerLabel}</Text>
         <DatePicker
           dia={dia}
           setDia={setDia}
@@ -124,5 +110,12 @@ const estilos = StyleSheet.create({
   },
   secao: {
     margin: 20,
+  },
+  label: {
+    fontSize: 20,
+    color: "white",
+    marginBottom: 10,
+    textAlign: "center",
+    fontWeight: "bold",
   },
 });
