@@ -1,4 +1,11 @@
 export const strings = {
+  profile: {
+    pickImage: "Escolher imagem",
+    name: "Nome",
+    bloodType: "Tipo sanguíneo",
+    birthDate: "Data de nascimento",
+    saveProfile: "Salvar",
+  },
   welcome: {
     title: "Bem-vindo ao DonorHelp",
     subtitle: "Ajudando você a salvar vidas",
