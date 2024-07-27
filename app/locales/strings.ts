@@ -5,6 +5,9 @@ export const strings = {
     bloodType: "Tipo sanguíneo",
     birthDate: "Data de nascimento",
     saveProfile: "Salvar",
+    gender: "Gênero",
+    male: "Masculino",
+    female: "Feminino",
   },
   welcome: {
     title: "Bem-vindo ao DonorHelp",

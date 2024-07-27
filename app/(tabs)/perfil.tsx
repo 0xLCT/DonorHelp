@@ -83,6 +83,7 @@ export default function TabFourScreen() {
           onFocus={() => setNameFocused(true)}
           onBlur={() => setNameFocused(false)}
         />
+        <Text style={styles.label}>{strings.profile.gender}</Text>
         <View style={styles.genderSelector}>
           <TouchableOpacity
             style={[
@@ -96,6 +97,7 @@ export default function TabFourScreen() {
               size={24}
               color={gender === "male" ? "#007AFF" : "#fff"}
             />
+            <Text style={styles.genderText}>{strings.profile.male}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -107,12 +109,13 @@ export default function TabFourScreen() {
             <FontAwesome
               name="female"
               size={24}
-              color={gender === "female" ? "#FF69B4" : "#FFB6C1"}
+              color={gender === "female" ? "#FF69B4" : "#fff"}
             />
+            <Text style={styles.genderText}>{strings.profile.female}</Text>
           </TouchableOpacity>
         </View>
         <TextInput
-          style={[styles.input, styles.text]}
+          style={[styles.input, styles.text, styles.narrowInput]}
           placeholder={bloodTypeFocused ? "" : strings.profile.bloodType}
           placeholderTextColor="#fff"
           value={bloodType}
@@ -121,7 +124,7 @@ export default function TabFourScreen() {
           onBlur={() => setBloodTypeFocused(false)}
         />
         <TextInput
-          style={[styles.input, styles.text]}
+          style={[styles.input, styles.text, styles.narrowInput]}
           placeholder={birthDateFocused ? "" : strings.profile.birthDate}
           placeholderTextColor="#fff"
           value={birthDate}
@@ -148,8 +151,9 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "100%",
-    padding: 10,
-    marginVertical: 10,
+    paddingTop: 10,
+    paddingBottom: 5,
+    marginVertical: 5,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
     color: "#fff",
@@ -173,6 +177,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   genderOption: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     marginHorizontal: 10,
     borderWidth: 1,
@@ -186,5 +192,18 @@ const styles = StyleSheet.create({
   selectedFemale: {
     backgroundColor: "rgba(255, 105, 180, 0.1)",
     borderColor: "#FF69B4",
+  },
+  narrowInput: {
+    width: "60%",
+  },
+  label: {
+    color: "#fff",
+    fontSize: 16,
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  genderText: {
+    color: "#fff",
+    marginLeft: 5,
   },
 });
