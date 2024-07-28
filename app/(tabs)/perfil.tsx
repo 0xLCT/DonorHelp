@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  Button,
   Image,
   View,
   TouchableOpacity,
@@ -52,6 +51,27 @@ export default function TabFourScreen() {
     if (gender) await AsyncStorage.setItem("profileGender", gender);
   };
 
+  // Updated state setters with auto-save
+  const updateName = (value: string) => {
+    setName(value);
+    AsyncStorage.setItem("profileName", value);
+  };
+
+  const updateGender = (value: "male" | "female") => {
+    setGender(value);
+    AsyncStorage.setItem("profileGender", value);
+  };
+
+  const updateBloodType = (value: string) => {
+    setBloodType(value);
+    AsyncStorage.setItem("profileBloodType", value);
+  };
+
+  const updateBirthDate = (value: string) => {
+    setBirthDate(value);
+    AsyncStorage.setItem("profileBirthDate", value);
+  };
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -61,7 +81,9 @@ export default function TabFourScreen() {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setPhoto(result.assets[0].uri);
+      const newPhoto = result.assets[0].uri;
+      setPhoto(newPhoto);
+      AsyncStorage.setItem("profilePhoto", newPhoto);
     }
   };
 
@@ -73,53 +95,25 @@ export default function TabFourScreen() {
         ) : (
           <View style={[styles.photo, styles.placeholderPhoto]} />
         )}
-        <Button title={strings.profile.pickImage} onPress={pickImage} />
+        <TouchableOpacity onPress={pickImage} style={styles.pickImageButton}>
+          <Text style={styles.pickImageText}>{strings.profile.pickImage}</Text>
+        </TouchableOpacity>
         <TextInput
           style={[styles.input, styles.text]}
           placeholder={nameFocused ? "" : strings.profile.name}
           placeholderTextColor="#fff"
           value={name}
-          onChangeText={setName}
+          onChangeText={updateName}
           onFocus={() => setNameFocused(true)}
           onBlur={() => setNameFocused(false)}
         />
-        <Text style={styles.label}>{strings.profile.gender}</Text>
-        <View style={styles.genderSelector}>
-          <TouchableOpacity
-            style={[
-              styles.genderOption,
-              gender === "male" && styles.selectedMale,
-            ]}
-            onPress={() => setGender("male")}
-          >
-            <FontAwesome
-              name="male"
-              size={24}
-              color={gender === "male" ? "#007AFF" : "#fff"}
-            />
-            <Text style={styles.genderText}>{strings.profile.male}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.genderOption,
-              gender === "female" && styles.selectedFemale,
-            ]}
-            onPress={() => setGender("female")}
-          >
-            <FontAwesome
-              name="female"
-              size={24}
-              color={gender === "female" ? "#FF69B4" : "#fff"}
-            />
-            <Text style={styles.genderText}>{strings.profile.female}</Text>
-          </TouchableOpacity>
-        </View>
+
         <TextInput
           style={[styles.input, styles.text, styles.narrowInput]}
           placeholder={bloodTypeFocused ? "" : strings.profile.bloodType}
           placeholderTextColor="#fff"
           value={bloodType}
-          onChangeText={setBloodType}
+          onChangeText={updateBloodType}
           onFocus={() => setBloodTypeFocused(true)}
           onBlur={() => setBloodTypeFocused(false)}
         />
@@ -128,11 +122,41 @@ export default function TabFourScreen() {
           placeholder={birthDateFocused ? "" : strings.profile.birthDate}
           placeholderTextColor="#fff"
           value={birthDate}
-          onChangeText={setBirthDate}
+          onChangeText={updateBirthDate}
           onFocus={() => setBirthDateFocused(true)}
           onBlur={() => setBirthDateFocused(false)}
         />
-        <Button title={strings.profile.saveProfile} onPress={saveProfile} />
+      </View>
+      <Text style={styles.label}>{strings.profile.gender}</Text>
+      <View style={styles.genderSelector}>
+        <TouchableOpacity
+          style={[
+            styles.genderOption,
+            gender === "male" && styles.selectedMale,
+          ]}
+          onPress={() => updateGender("male")}
+        >
+          <FontAwesome
+            name="male"
+            size={24}
+            color={gender === "male" ? "#007AFF" : "#fff"}
+          />
+          <Text style={styles.genderText}>{strings.profile.male}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.genderOption,
+            gender === "female" && styles.selectedFemale,
+          ]}
+          onPress={() => updateGender("female")}
+        >
+          <FontAwesome
+            name="female"
+            size={24}
+            color={gender === "female" ? "#FF69B4" : "#fff"}
+          />
+          <Text style={styles.genderText}>{strings.profile.female}</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -205,5 +229,15 @@ const styles = StyleSheet.create({
   genderText: {
     color: "#fff",
     marginLeft: 5,
+  },
+  pickImageButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#007AFF",
+    borderRadius: 5,
+  },
+  pickImageText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
