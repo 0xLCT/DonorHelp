@@ -7,19 +7,20 @@ import {
   Alert,
   Platform,
   Text,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import * as Linking from "expo-linking";
 import * as Calendar from "expo-calendar";
 import DatePicker from "../../components/DatePicker";
 import { strings } from "../locales/strings";
 
-// Componente principal da tela inicial
 export default function TelaInicial() {
-  // Estados para armazenar a data selecionada
+  const [modalVisible, setModalVisible] = useState(false);
   const [dia, setDia] = useState("");
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
-  const anoAtual = new Date().getFullYear(); // Obtém o ano atual
+  const anoAtual = new Date().getFullYear();
 
   // Solicita permissão para acessar o calendário ao carregar o componente
   useEffect(() => {
@@ -83,19 +84,35 @@ export default function TelaInicial() {
 
   return (
     <SafeAreaView style={estilos.container}>
-      <View style={estilos.secao}>
-        <Text style={estilos.label}>{strings.datePickerLabel}</Text>
-        <DatePicker
-          dia={dia}
-          setDia={setDia}
-          mes={mes}
-          setMes={setMes}
-          ano={ano}
-          setAno={setAno}
-          anoAtual={anoAtual}
-        />
-        <Button title={strings.buttons.createEvent} onPress={criarEvento} />
-      </View>
+      <Button title="Marcar lembrete" onPress={() => setModalVisible(true)} />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={estilos.centeredView}>
+          <View style={estilos.modalView}>
+            <TouchableOpacity
+              style={estilos.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={estilos.closeButtonText}>X</Text>
+            </TouchableOpacity>
+            <Text style={estilos.label}>{strings.datePickerLabel}</Text>
+            <DatePicker
+              dia={dia}
+              setDia={setDia}
+              mes={mes}
+              setMes={setMes}
+              ano={ano}
+              setAno={setAno}
+              anoAtual={anoAtual}
+            />
+            <Button title={strings.buttons.createEvent} onPress={criarEvento} />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -108,14 +125,43 @@ const estilos = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#111",
   },
-  secao: {
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalView: {
     margin: 20,
+    backgroundColor: "#222",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   label: {
     fontSize: 20,
     color: "white",
     marginBottom: 10,
     textAlign: "center",
+    fontWeight: "bold",
+  },
+  closeButton: {
+    position: "absolute",
+    right: 10,
+    top: 10,
+    padding: 10,
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 20,
     fontWeight: "bold",
   },
 });
