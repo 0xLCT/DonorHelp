@@ -5,22 +5,23 @@ import {
   View,
   Button,
   Alert,
-  Platform,
   Text,
   Modal,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import * as Linking from "expo-linking";
 import * as Calendar from "expo-calendar";
 import DatePicker from "../../components/DatePicker";
 import { strings } from "../locales/strings";
 
 export default function TelaInicial() {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [reminderModalVisible, setReminderModalVisible] = useState(false);
+  const [donationModalVisible, setDonationModalVisible] = useState(false);
   const [dia, setDia] = useState("");
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
   const anoAtual = new Date().getFullYear();
+  const [donations, setDonations] = useState([]);
 
   // Solicita permissão para acessar o calendário ao carregar o componente
   useEffect(() => {
@@ -82,20 +83,57 @@ export default function TelaInicial() {
     }
   };
 
+  const addDonation = () => {
+    if (!dia || !mes || !ano) {
+      Alert.alert("Por favor, selecione uma data");
+      return;
+    }
+    const newDonation = {
+      date: `${dia}/${mes}/${ano}`,
+      number: donations.length + 1,
+    };
+    setDonations([...donations, newDonation]);
+    setDonationModalVisible(false);
+    setDia("");
+    setMes("");
+    setAno("");
+  };
+
   return (
     <SafeAreaView style={estilos.container}>
-      <Button title="Marcar lembrete" onPress={() => setModalVisible(true)} />
+      <View style={estilos.buttonContainer}>
+        <Button
+          title="Marcar lembrete"
+          onPress={() => setReminderModalVisible(true)}
+        />
+        <Button
+          title="Adicionar doação"
+          onPress={() => setDonationModalVisible(true)}
+        />
+      </View>
+
+      <ScrollView style={estilos.donationList}>
+        <Text style={estilos.donationListTitle}>Doações:</Text>
+        {donations.map((donation, index) => (
+          <View key={index} style={estilos.donationItem}>
+            <Text style={estilos.donationText}>Data: {donation.date}</Text>
+            <Text style={estilos.donationText}>Número: {donation.number}</Text>
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Reminder Modal */}
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        visible={reminderModalVisible}
+        onRequestClose={() => setReminderModalVisible(false)}
       >
         <View style={estilos.centeredView}>
           <View style={estilos.modalView}>
             <TouchableOpacity
               style={estilos.closeButton}
-              onPress={() => setModalVisible(false)}
+              onPress={() => setReminderModalVisible(false)}
             >
               <Text style={estilos.closeButtonText}>X</Text>
             </TouchableOpacity>
@@ -113,11 +151,43 @@ export default function TelaInicial() {
           </View>
         </View>
       </Modal>
+
+      {/* Donation Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={donationModalVisible}
+        onRequestClose={() => setDonationModalVisible(false)}
+      >
+        <View style={estilos.centeredView}>
+          <View style={estilos.modalView}>
+            <TouchableOpacity
+              style={estilos.closeButton}
+              onPress={() => setDonationModalVisible(false)}
+            >
+              <Text style={estilos.closeButtonText}>X</Text>
+            </TouchableOpacity>
+            <Text style={estilos.label}>Adicionar Doação</Text>
+            <DatePicker
+              dia={dia}
+              setDia={setDia}
+              mes={mes}
+              setMes={setMes}
+              ano={ano}
+              setAno={setAno}
+              anoAtual={anoAtual}
+            />
+            <Text style={estilos.donationNumberText}>
+              Número da doação: {donations.length + 1}
+            </Text>
+            <Button title="Adicionar Doação" onPress={addDonation} />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
-// Estilos para os componentes
 const estilos = StyleSheet.create({
   container: {
     flex: 1,
@@ -163,5 +233,38 @@ const estilos = StyleSheet.create({
     color: "white",
     fontSize: 20,
     fontWeight: "bold",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginBottom: 20,
+  },
+  donationList: {
+    width: "100%",
+    maxHeight: 200,
+    backgroundColor: "#222",
+    borderRadius: 10,
+    padding: 10,
+  },
+  donationListTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 10,
+  },
+  donationItem: {
+    backgroundColor: "#333",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 5,
+  },
+  donationText: {
+    color: "white",
+  },
+  donationNumberText: {
+    fontSize: 16,
+    color: "white",
+    marginBottom: 20,
   },
 });
