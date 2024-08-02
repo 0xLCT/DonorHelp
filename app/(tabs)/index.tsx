@@ -13,6 +13,12 @@ import {
 import * as Calendar from "expo-calendar";
 import DatePicker from "../../components/DatePicker";
 import { strings } from "../locales/strings";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface Donation {
+  date: string;
+  number: number;
+}
 
 export default function TelaInicial() {
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
@@ -21,7 +27,22 @@ export default function TelaInicial() {
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
   const anoAtual = new Date().getFullYear();
-  const [donations, setDonations] = useState([]);
+  const [donations, setDonations] = useState<Donation[]>([]);
+
+  // Load donations from AsyncStorage when the component mounts
+  useEffect(() => {
+    (async () => {
+      const storedDonations = await AsyncStorage.getItem("donations");
+      if (storedDonations) {
+        setDonations(JSON.parse(storedDonations));
+      }
+    })();
+  }, []);
+
+  // Save donations to AsyncStorage whenever they change
+  useEffect(() => {
+    AsyncStorage.setItem("donations", JSON.stringify(donations));
+  }, [donations]);
 
   // Solicita permissão para acessar o calendário ao carregar o componente
   useEffect(() => {
@@ -99,6 +120,10 @@ export default function TelaInicial() {
     setAno("");
   };
 
+  const removeDonation = (index: number) => {
+    setDonations(donations.filter((_, i) => i !== index));
+  };
+
   return (
     <SafeAreaView style={estilos.container}>
       <View style={estilos.buttonContainer}>
@@ -118,6 +143,12 @@ export default function TelaInicial() {
           <View key={index} style={estilos.donationItem}>
             <Text style={estilos.donationText}>Data: {donation.date}</Text>
             <Text style={estilos.donationText}>Número: {donation.number}</Text>
+            <TouchableOpacity
+              style={estilos.removeButton}
+              onPress={() => removeDonation(index)}
+            >
+              <Text style={estilos.removeButtonText}>Remover</Text>
+            </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
@@ -266,5 +297,15 @@ const estilos = StyleSheet.create({
     fontSize: 16,
     color: "white",
     marginBottom: 20,
+  },
+  removeButton: {
+    backgroundColor: "#ff4444",
+    borderRadius: 5,
+    padding: 5,
+    marginTop: 5,
+  },
+  removeButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
