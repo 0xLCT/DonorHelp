@@ -3,7 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
+  Pressable,
   Alert,
   Platform,
 } from "react-native";
@@ -28,7 +28,12 @@ export default function TabThreeScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.secao}>
         <Text style={styles.label}>Hemocentros próximos</Text>
-        <Button title={strings.buttons.findBloodBank} onPress={buscarBancos} />
+        <Pressable
+          style={styles.button}
+          onPress={buscarBancos}
+        >
+          <Text style={styles.buttonText}>{strings.buttons.findBloodBank}</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -49,5 +54,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
     fontWeight: "bold",
+  },
+  button: {
+    backgroundColor: '#2196F3',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });

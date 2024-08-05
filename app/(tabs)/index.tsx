@@ -3,11 +3,10 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
-  Button,
   Alert,
   Text,
   Modal,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
 } from "react-native";
 import * as Calendar from "expo-calendar";
@@ -127,14 +126,18 @@ export default function TelaInicial() {
   return (
     <SafeAreaView style={estilos.container}>
       <View style={estilos.buttonContainer}>
-        <Button
-          title="Marcar lembrete"
+        <Pressable
+          style={estilos.button}
           onPress={() => setReminderModalVisible(true)}
-        />
-        <Button
-          title="Adicionar doação"
+        >
+          <Text style={estilos.buttonText}>Marcar lembrete</Text>
+        </Pressable>
+        <Pressable
+          style={estilos.button}
           onPress={() => setDonationModalVisible(true)}
-        />
+        >
+          <Text style={estilos.buttonText}>Adicionar doação</Text>
+        </Pressable>
       </View>
 
       <ScrollView style={estilos.donationList}>
@@ -143,12 +146,12 @@ export default function TelaInicial() {
           <View key={index} style={estilos.donationItem}>
             <Text style={estilos.donationText}>Data: {donation.date}</Text>
             <Text style={estilos.donationText}>Número: {donation.number}</Text>
-            <TouchableOpacity
+            <Pressable
               style={estilos.removeButton}
               onPress={() => removeDonation(index)}
             >
               <Text style={estilos.removeButtonText}>Remover</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         ))}
       </ScrollView>
@@ -162,12 +165,12 @@ export default function TelaInicial() {
       >
         <View style={estilos.centeredView}>
           <View style={estilos.modalView}>
-            <TouchableOpacity
+            <Pressable
               style={estilos.closeButton}
               onPress={() => setReminderModalVisible(false)}
             >
               <Text style={estilos.closeButtonText}>X</Text>
-            </TouchableOpacity>
+            </Pressable>
             <Text style={estilos.label}>{strings.datePickerLabel}</Text>
             <DatePicker
               dia={dia}
@@ -178,7 +181,9 @@ export default function TelaInicial() {
               setAno={setAno}
               anoAtual={anoAtual}
             />
-            <Button title={strings.buttons.createEvent} onPress={criarEvento} />
+            <Pressable style={estilos.button} onPress={criarEvento}>
+              <Text style={estilos.buttonText}>{strings.buttons.createEvent}</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -192,12 +197,12 @@ export default function TelaInicial() {
       >
         <View style={estilos.centeredView}>
           <View style={estilos.modalView}>
-            <TouchableOpacity
+            <Pressable
               style={estilos.closeButton}
               onPress={() => setDonationModalVisible(false)}
             >
               <Text style={estilos.closeButtonText}>X</Text>
-            </TouchableOpacity>
+            </Pressable>
             <Text style={estilos.label}>Adicionar Doação</Text>
             <DatePicker
               dia={dia}
@@ -211,7 +216,9 @@ export default function TelaInicial() {
             <Text style={estilos.donationNumberText}>
               Número da doação: {donations.length + 1}
             </Text>
-            <Button title="Adicionar Doação" onPress={addDonation} />
+            <Pressable style={estilos.button} onPress={addDonation}>
+              <Text style={estilos.buttonText}>Adicionar Doação</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -238,14 +245,11 @@ const estilos = StyleSheet.create({
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
+    elevation: 5, // for Android
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowRadius: 3.84,
   },
   label: {
     fontSize: 20,
@@ -307,5 +311,16 @@ const estilos = StyleSheet.create({
   removeButtonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  button: {
+    backgroundColor: '#2196F3',
+    borderRadius: 5,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

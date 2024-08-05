@@ -6,7 +6,7 @@ import {
   TextInput,
   Image,
   View,
-  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
@@ -95,9 +95,9 @@ export default function TabFourScreen() {
         ) : (
           <View style={[styles.photo, styles.placeholderPhoto]} />
         )}
-        <TouchableOpacity onPress={pickImage} style={styles.pickImageButton}>
+        <Pressable onPress={pickImage} style={styles.pickImageButton}>
           <Text style={styles.pickImageText}>{strings.profile.pickImage}</Text>
-        </TouchableOpacity>
+        </Pressable>
         <TextInput
           style={[styles.input, styles.text]}
           placeholder={nameFocused ? "" : strings.profile.name}
@@ -129,10 +129,11 @@ export default function TabFourScreen() {
       </View>
       <Text style={styles.label}>{strings.profile.gender}</Text>
       <View style={styles.genderSelector}>
-        <TouchableOpacity
-          style={[
+        <Pressable
+          style={({ pressed }) => [
             styles.genderOption,
             gender === "male" && styles.selectedMale,
+            pressed && styles.pressed,
           ]}
           onPress={() => updateGender("male")}
         >
@@ -142,11 +143,12 @@ export default function TabFourScreen() {
             color={gender === "male" ? "#007AFF" : "#fff"}
           />
           <Text style={styles.genderText}>{strings.profile.male}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [
             styles.genderOption,
             gender === "female" && styles.selectedFemale,
+            pressed && styles.pressed,
           ]}
           onPress={() => updateGender("female")}
         >
@@ -156,7 +158,7 @@ export default function TabFourScreen() {
             color={gender === "female" ? "#FF69B4" : "#fff"}
           />
           <Text style={styles.genderText}>{strings.profile.female}</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -239,5 +241,8 @@ const styles = StyleSheet.create({
   pickImageText: {
     color: "#fff",
     fontSize: 16,
+  },
+  pressed: {
+    opacity: 0.7,
   },
 });
