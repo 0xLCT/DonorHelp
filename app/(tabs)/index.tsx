@@ -182,7 +182,9 @@ export default function TelaInicial() {
               anoAtual={anoAtual}
             />
             <Pressable style={estilos.button} onPress={criarEvento}>
-              <Text style={estilos.buttonText}>{strings.buttons.createEvent}</Text>
+              <Text style={estilos.buttonText}>
+                {strings.buttons.createEvent}
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -313,14 +315,14 @@ const estilos = StyleSheet.create({
     fontWeight: "bold",
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     borderRadius: 5,
     padding: 10,
     elevation: 2,
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
