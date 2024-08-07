@@ -5,14 +5,15 @@ import {
   View,
   Alert,
   Text,
-  Modal,
-  Pressable,
   ScrollView,
+  Pressable,
 } from "react-native";
 import * as Calendar from "expo-calendar";
-import DatePicker from "../../components/DatePicker";
-import { strings } from "../locales/strings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { strings } from "../locales/strings";
+import DonationBox from "../../components/DonationBox";
+import ReminderModal from "../../components/ReminderModal";
+import DonationModal from "../../components/DonationModal";
 
 interface Donation {
   date: string;
@@ -22,61 +23,43 @@ interface Donation {
 export default function TelaInicial() {
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
   const [donationModalVisible, setDonationModalVisible] = useState(false);
-  const [dia, setDia] = useState("");
-  const [mes, setMes] = useState("");
-  const [ano, setAno] = useState("");
-  const anoAtual = new Date().getFullYear();
+  const [date, setDate] = useState({ dia: "", mes: "", ano: "" });
   const [donations, setDonations] = useState<Donation[]>([]);
 
-  // Load donations from AsyncStorage when the component mounts
   useEffect(() => {
     (async () => {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status !== "granted") Alert.alert(strings.alerts.permissionDenied);
+
       const storedDonations = await AsyncStorage.getItem("donations");
-      if (storedDonations) {
-        setDonations(JSON.parse(storedDonations));
-      }
+      if (storedDonations) setDonations(JSON.parse(storedDonations));
     })();
   }, []);
 
-  // Save donations to AsyncStorage whenever they change
   useEffect(() => {
     AsyncStorage.setItem("donations", JSON.stringify(donations));
   }, [donations]);
 
-  // Solicita permissão para acessar o calendário ao carregar o componente
-  useEffect(() => {
-    (async () => {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(strings.alerts.permissionDenied);
-      }
-    })();
-  }, []);
-
-  // Função para criar um evento no calendário
   const criarEvento = async () => {
-    if (!dia || !mes || !ano) {
+    if (!date.dia || !date.mes || !date.ano) {
       Alert.alert(strings.alerts.selectDate);
       return;
     }
 
-    // Cria o objeto de data e define para meio-dia para evitar problemas de fuso horário
     const eventDate = new Date(
-      parseInt(ano),
-      parseInt(mes) - 1,
-      parseInt(dia),
+      parseInt(date.ano),
+      parseInt(date.mes) - 1,
+      parseInt(date.dia),
       12,
       0,
       0
     );
 
-    // Cria as datas de início e fim para o evento
     const startDate = new Date(eventDate);
     const endDate = new Date(eventDate);
     endDate.setHours(23, 59, 59);
 
     try {
-      // Obtém os calendários disponíveis
       const calendars = await Calendar.getCalendarsAsync(
         Calendar.EntityTypes.EVENT
       );
@@ -87,7 +70,6 @@ export default function TelaInicial() {
         return;
       }
 
-      // Cria o evento no calendário padrão
       await Calendar.createEventAsync(defaultCalendar.id, {
         title: "Marcar doação de sangue",
         startDate,
@@ -104,19 +86,17 @@ export default function TelaInicial() {
   };
 
   const addDonation = () => {
-    if (!dia || !mes || !ano) {
+    if (!date.dia || !date.mes || !date.ano) {
       Alert.alert("Por favor, selecione uma data");
       return;
     }
     const newDonation = {
-      date: `${dia}/${mes}/${ano}`,
+      date: `${date.dia}/${date.mes}/${date.ano}`,
       number: donations.length + 1,
     };
     setDonations([...donations, newDonation]);
     setDonationModalVisible(false);
-    setDia("");
-    setMes("");
-    setAno("");
+    setDate({ dia: "", mes: "", ano: "" });
   };
 
   const removeDonation = (index: number) => {
@@ -143,139 +123,56 @@ export default function TelaInicial() {
       <ScrollView style={estilos.donationList}>
         <Text style={estilos.donationListTitle}>Doações:</Text>
         {donations.map((donation, index) => (
-          <View key={index} style={estilos.donationItem}>
-            <Text style={estilos.donationText}>Data: {donation.date}</Text>
-            <Text style={estilos.donationText}>Número: {donation.number}</Text>
-            <Pressable
-              style={estilos.removeButton}
-              onPress={() => removeDonation(index)}
-            >
-              <Text style={estilos.removeButtonText}>Remover</Text>
-            </Pressable>
-          </View>
+          <DonationBox
+            key={index}
+            donation={donation}
+            onRemove={() => removeDonation(index)}
+          />
         ))}
       </ScrollView>
 
-      {/* Reminder Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
+      <ReminderModal
         visible={reminderModalVisible}
-        onRequestClose={() => setReminderModalVisible(false)}
-      >
-        <View style={estilos.centeredView}>
-          <View style={estilos.modalView}>
-            <Pressable
-              style={estilos.closeButton}
-              onPress={() => setReminderModalVisible(false)}
-            >
-              <Text style={estilos.closeButtonText}>X</Text>
-            </Pressable>
-            <Text style={estilos.label}>{strings.datePickerLabel}</Text>
-            <DatePicker
-              dia={dia}
-              setDia={setDia}
-              mes={mes}
-              setMes={setMes}
-              ano={ano}
-              setAno={setAno}
-              anoAtual={anoAtual}
-            />
-            <Pressable style={estilos.button} onPress={criarEvento}>
-              <Text style={estilos.buttonText}>
-                {strings.buttons.createEvent}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Donation Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
+        setVisible={setReminderModalVisible}
+        date={date}
+        setDate={setDate}
+        onSubmit={criarEvento}
+      />
+      <DonationModal
         visible={donationModalVisible}
-        onRequestClose={() => setDonationModalVisible(false)}
-      >
-        <View style={estilos.centeredView}>
-          <View style={estilos.modalView}>
-            <Pressable
-              style={estilos.closeButton}
-              onPress={() => setDonationModalVisible(false)}
-            >
-              <Text style={estilos.closeButtonText}>X</Text>
-            </Pressable>
-            <Text style={estilos.label}>Adicionar Doação</Text>
-            <DatePicker
-              dia={dia}
-              setDia={setDia}
-              mes={mes}
-              setMes={setMes}
-              ano={ano}
-              setAno={setAno}
-              anoAtual={anoAtual}
-            />
-            <Text style={estilos.donationNumberText}>
-              Número da doação: {donations.length + 1}
-            </Text>
-            <Pressable style={estilos.button} onPress={addDonation}>
-              <Text style={estilos.buttonText}>Adicionar Doação</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+        setVisible={setDonationModalVisible}
+        date={date}
+        setDate={setDate}
+        donationNumber={donations.length + 1}
+        onSubmit={addDonation}
+      />
     </SafeAreaView>
   );
 }
 
 const estilos = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#111",
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "#222",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    elevation: 5, // for Android
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  label: {
-    fontSize: 20,
-    color: "white",
-    marginBottom: 10,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  closeButton: {
-    position: "absolute",
-    right: 10,
-    top: 10,
+  button: {
+    backgroundColor: "#2196F3",
+    borderRadius: 5,
     padding: 10,
-  },
-  closeButtonText: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
+    elevation: 2,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
     marginBottom: 20,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#111",
   },
   donationList: {
     width: "100%",
@@ -289,40 +186,5 @@ const estilos = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
     marginBottom: 10,
-  },
-  donationItem: {
-    backgroundColor: "#333",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 5,
-  },
-  donationText: {
-    color: "white",
-  },
-  donationNumberText: {
-    fontSize: 16,
-    color: "white",
-    marginBottom: 20,
-  },
-  removeButton: {
-    backgroundColor: "#ff4444",
-    borderRadius: 5,
-    padding: 5,
-    marginTop: 5,
-  },
-  removeButtonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  button: {
-    backgroundColor: "#2196F3",
-    borderRadius: 5,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
   },
 });
