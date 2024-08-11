@@ -3,167 +3,108 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
-  Alert,
   Text,
-  ScrollView,
-  Pressable,
+  Button,
+  Modal,
+  FlatList,
+  TouchableOpacity,
 } from "react-native";
-import * as Calendar from "expo-calendar";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { strings } from "../locales/strings";
-import DonationBox from "../../components/DonationBox";
-import ReminderModal from "../../components/ReminderModal";
-import DonationModal from "../../components/DonationModal";
-
-interface Donation {
-  date: string;
-  number: number;
-}
+import Icon from "react-native-vector-icons/FontAwesome"; // Import the icon library
 
 export default function TelaInicial() {
-  const [reminderModalVisible, setReminderModalVisible] = useState(false);
-  const [donationModalVisible, setDonationModalVisible] = useState(false);
-  const [date, setDate] = useState({ dia: "", mes: "", ano: "" });
-  const [donations, setDonations] = useState<Donation[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [donations, setDonations] = useState<Date[]>([]);
 
   useEffect(() => {
-    (async () => {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status !== "granted") Alert.alert(strings.alerts.permissionDenied);
-
+    const loadDonations = async () => {
       const storedDonations = await AsyncStorage.getItem("donations");
-      if (storedDonations) setDonations(JSON.parse(storedDonations));
-    })();
+      if (storedDonations) {
+        setDonations(JSON.parse(storedDonations));
+      }
+    };
+    loadDonations();
   }, []);
 
-  useEffect(() => {
-    AsyncStorage.setItem("donations", JSON.stringify(donations));
-  }, [donations]);
-
-  const criarEvento = async () => {
-    if (!date.dia || !date.mes || !date.ano) {
-      Alert.alert(strings.alerts.selectDate);
-      return;
-    }
-
-    const eventDate = new Date(
-      parseInt(date.ano),
-      parseInt(date.mes) - 1,
-      parseInt(date.dia),
-      12,
-      0,
-      0
+  const addDonation = async () => {
+    const newDonations = [...donations, date].sort(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime()
     );
-
-    const startDate = new Date(eventDate);
-    const endDate = new Date(eventDate);
-    endDate.setHours(23, 59, 59);
-
-    try {
-      const calendars = await Calendar.getCalendarsAsync(
-        Calendar.EntityTypes.EVENT
-      );
-      const defaultCalendar = calendars.find((cal) => cal.allowsModifications);
-
-      if (!defaultCalendar) {
-        Alert.alert("Calendário padrão não encontrado");
-        return;
-      }
-
-      await Calendar.createEventAsync(defaultCalendar.id, {
-        title: "Marcar doação de sangue",
-        startDate,
-        endDate,
-        allDay: true,
-        timeZone: "GMT",
-      });
-      Alert.alert(strings.alerts.eventCreated);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Erro desconhecido";
-      Alert.alert(strings.alerts.eventError, errorMessage);
-    }
+    setDonations(newDonations);
+    await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
+    setModalVisible(false);
   };
 
-  const addDonation = () => {
-    if (!date.dia || !date.mes || !date.ano) {
-      Alert.alert("Por favor, selecione uma data");
-      return;
-    }
-    const newDonation = {
-      date: `${date.dia}/${date.mes}/${date.ano}`,
-      number: donations.length + 1,
-    };
-    setDonations([...donations, newDonation]);
-    setDonationModalVisible(false);
-    setDate({ dia: "", mes: "", ano: "" });
-  };
-
-  const removeDonation = (index: number) => {
-    setDonations(donations.filter((_, i) => i !== index));
+  const deleteDonation = async (index: number) => {
+    const newDonations = donations.filter((_, i) => i !== index);
+    setDonations(newDonations);
+    await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
   };
 
   return (
     <SafeAreaView style={estilos.container}>
-      <View style={estilos.buttonContainer}>
-        <Pressable
-          style={estilos.button}
-          onPress={() => setReminderModalVisible(true)}
-        >
-          <Text style={estilos.buttonText}>Marcar lembrete</Text>
-        </Pressable>
-        <Pressable
-          style={estilos.button}
-          onPress={() => setDonationModalVisible(true)}
-        >
-          <Text style={estilos.buttonText}>Adicionar doação</Text>
-        </Pressable>
+      <View style={estilos.contentContainer}>
+        <Button title="Add donation" onPress={() => setModalVisible(true)} />
+        <FlatList
+          data={donations}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => (
+            <View style={estilos.donationRow}>
+              <Text style={estilos.text}>
+                {" "}
+                #{index + 1} - {new Date(item).toLocaleDateString()}
+              </Text>
+              <TouchableOpacity onPress={() => deleteDonation(index)}>
+                <Icon name="trash" size={25} color="white" />
+              </TouchableOpacity>
+            </View>
+          )}
+        />
       </View>
-
-      <ScrollView style={estilos.donationList}>
-        <Text style={estilos.donationListTitle}>Doações:</Text>
-        {donations.map((donation, index) => (
-          <DonationBox
-            key={index}
-            donation={donation}
-            onRemove={() => removeDonation(index)}
-          />
-        ))}
-      </ScrollView>
-
-      <ReminderModal
-        visible={reminderModalVisible}
-        setVisible={setReminderModalVisible}
-        date={date}
-        setDate={setDate}
-        onSubmit={criarEvento}
-      />
-      <DonationModal
-        visible={donationModalVisible}
-        setVisible={setDonationModalVisible}
-        date={date}
-        setDate={setDate}
-        donationNumber={donations.length + 1}
-        onSubmit={addDonation}
-      />
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={estilos.modalContainer}>
+          <View style={estilos.modalContent}>
+            <Button
+              title="Pick a date"
+              onPress={() => setShowDatePicker(true)}
+            />
+            <Text style={estilos.datePreview}>{date.toLocaleDateString()}</Text>
+            {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                  }
+                }}
+              />
+            )}
+            <View style={estilos.buttonRow}>
+              <Button title="Close" onPress={() => setModalVisible(false)} />
+              <Button title="Confirm" onPress={addDonation} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const estilos = StyleSheet.create({
-  button: {
-    backgroundColor: "#2196F3",
-    borderRadius: 5,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  contentContainer: {
+    justifyContent: "center",
+    alignItems: "center",
     width: "100%",
     marginBottom: 20,
   },
-  buttonText: {
+  text: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
@@ -174,17 +115,40 @@ const estilos = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#111",
   },
-  donationList: {
-    width: "100%",
-    maxHeight: 200,
-    backgroundColor: "#222",
-    borderRadius: 10,
-    padding: 10,
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  donationListTitle: {
-    fontSize: 18,
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  donationRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  deleteButton: {
+    color: "red",
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 10,
+  },
+  datePreview: {
+    marginVertical: 10,
+    fontSize: 16,
+    color: "black",
   },
 });
