@@ -49,21 +49,25 @@ export default function TelaInicial() {
     <SafeAreaView style={estilos.container}>
       <View style={estilos.contentContainer}>
         <Button title="Add donation" onPress={() => setModalVisible(true)} />
-        <FlatList
-          data={donations}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <View style={estilos.donationRow}>
-              <Text style={estilos.text}>
-                {" "}
-                #{index + 1} - {new Date(item).toLocaleDateString()}
-              </Text>
-              <TouchableOpacity onPress={() => deleteDonation(index)}>
-                <Icon name="trash" size={25} color="white" />
-              </TouchableOpacity>
-            </View>
-          )}
-        />
+        <View style={estilos.scrollBlock}>
+          <FlatList
+            style={estilos.scrollContainer} // Added style for FlatList
+            data={donations.slice().reverse()} // Reverse the donations for display
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => (
+              <View style={estilos.donationRow}>
+                <Text style={estilos.text}>
+                  {" "}
+                  #{donations.length - index} {/* Adjusted numbering */}
+                  {new Date(item).toLocaleDateString()}
+                </Text>
+                <TouchableOpacity onPress={() => deleteDonation(index)}>
+                  <Icon name="trash" size={25} color="white" />
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        </View>
       </View>
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={estilos.modalContainer}>
@@ -150,5 +154,11 @@ const estilos = StyleSheet.create({
     marginVertical: 10,
     fontSize: 16,
     color: "black",
+  },
+  scrollContainer: {
+    width: "100%",
+  },
+  scrollBlock: {
+    height: "55%", // Occupy less than 50% of the vertical space
   },
 });
