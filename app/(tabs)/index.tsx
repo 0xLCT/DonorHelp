@@ -12,7 +12,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { strings } from "../locales/strings";
-import Icon from "react-native-vector-icons/FontAwesome"; // Import the icon library
+import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function TelaInicial() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -47,18 +47,31 @@ export default function TelaInicial() {
 
   return (
     <SafeAreaView style={estilos.container}>
+      <View style={estilos.levelIndicatorContainer}>
+        <Text style={estilos.levelIndicatorText}>Level</Text>
+        <Text style={estilos.levelNumber}>{donations.length}</Text>
+        {donations.length >= 100 ? (
+          <Text style={estilos.emoji}>🏆</Text>
+        ) : donations.length >= 50 ? (
+          <Text style={estilos.emoji}>🥇</Text>
+        ) : donations.length >= 25 ? (
+          <Text style={estilos.emoji}>🥈</Text>
+        ) : donations.length >= 10 ? (
+          <Text style={estilos.emoji}>🥉</Text>
+        ) : null}
+      </View>
       <View style={estilos.contentContainer}>
         <Button title="Add donation" onPress={() => setModalVisible(true)} />
         <View style={estilos.scrollBlock}>
           <FlatList
-            style={estilos.scrollContainer} // Added style for FlatList
-            data={donations.slice().reverse()} // Reverse the donations for display
+            style={estilos.scrollContainer}
+            data={donations.slice().reverse()}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => (
               <View style={estilos.donationRow}>
                 <Text style={estilos.text}>
                   {" "}
-                  #{donations.length - index} {/* Adjusted numbering */}
+                  #{donations.length - index}
                   {new Date(item).toLocaleDateString()}
                 </Text>
                 <TouchableOpacity onPress={() => deleteDonation(index)}>
@@ -159,6 +172,24 @@ const estilos = StyleSheet.create({
     width: "100%",
   },
   scrollBlock: {
-    height: "55%", // Occupy less than 50% of the vertical space
+    height: "50%",
+  },
+  levelIndicatorContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  levelIndicatorText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "white",
+  },
+  levelNumber: {
+    fontSize: 40,
+    fontWeight: "bold",
+    color: "white",
+  },
+  emoji: {
+    fontSize: 30,
+    marginTop: 5,
   },
 });
