@@ -12,8 +12,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
 import { strings } from "../locales/strings";
+import { useDonations } from "@/context/DonationsContext";
 
 export default function TabFourScreen() {
+  const { donations }: { donations: any[] } = useDonations();
+
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | null>(null);
   const [bloodType, setBloodType] = useState("");
@@ -86,6 +89,9 @@ export default function TabFourScreen() {
       AsyncStorage.setItem("profilePhoto", newPhoto);
     }
   };
+
+  const lastDonation =
+    donations.length > 0 ? donations[donations.length - 1] : null;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -160,6 +166,23 @@ export default function TabFourScreen() {
           <Text style={styles.genderText}>{strings.profile.female}</Text>
         </Pressable>
       </View>
+      <Text style={styles.label}>
+        Doações: {donations.length}{" "}
+        {donations.length >= 100
+          ? "🏆"
+          : donations.length >= 50
+          ? "🥇"
+          : donations.length >= 25
+          ? "🥈"
+          : donations.length >= 10
+          ? "🥉"
+          : ""}
+      </Text>
+      {lastDonation && (
+        <Text style={styles.label}>
+          Ultima doação: {new Date(lastDonation).toLocaleDateString("pt-BR")}
+        </Text>
+      )}
     </SafeAreaView>
   );
 }

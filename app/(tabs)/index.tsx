@@ -72,7 +72,7 @@ export default function TelaInicial() {
                 <Text style={estilos.text}>
                   {" "}
                   #{donations.length - index}
-                  {new Date(item).toLocaleDateString()}
+                  {new Date(item).toLocaleDateString("en-GB")}
                 </Text>
                 <TouchableOpacity onPress={() => deleteDonation(index)}>
                   <Icon name="trash" size={25} color="white" />
@@ -89,7 +89,9 @@ export default function TelaInicial() {
               title="Pick a date"
               onPress={() => setShowDatePicker(true)}
             />
-            <Text style={estilos.datePreview}>{date.toLocaleDateString()}</Text>
+            <Text style={estilos.datePreview}>
+              {date.toLocaleDateString("pt-BR")}
+            </Text>
             {showDatePicker && (
               <DateTimePicker
                 value={date}

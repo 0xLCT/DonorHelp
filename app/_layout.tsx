@@ -5,6 +5,7 @@ import WelcomeModal from "@/components/WelcomeModal";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { DonationsProvider } from "@/context/DonationsContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,12 +40,14 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#151718" }}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <WelcomeModal visible={modalVisible} onClose={handleCloseModal} />
-    </View>
+    <DonationsProvider>
+      <View style={{ flex: 1, backgroundColor: "#151718" }}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <WelcomeModal visible={modalVisible} onClose={handleCloseModal} />
+      </View>
+    </DonationsProvider>
   );
 }
