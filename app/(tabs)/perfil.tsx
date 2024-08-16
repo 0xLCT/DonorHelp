@@ -7,6 +7,8 @@ import {
   Image,
   View,
   Pressable,
+  Modal,
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
@@ -15,7 +17,11 @@ import { strings } from "../locales/strings";
 import { useDonations } from "@/context/DonationsContext";
 
 export default function TabFourScreen() {
-  const { donations }: { donations: any[] } = useDonations();
+  const {
+    donations,
+    setAllDonations,
+  }: { donations: any[]; setAllDonations: (donations: any[]) => void } =
+    useDonations();
 
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | null>(null);
@@ -23,10 +29,14 @@ export default function TabFourScreen() {
   const [birthDate, setBirthDate] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
 
-  // New state variables to track focus
   const [nameFocused, setNameFocused] = useState(false);
   const [bloodTypeFocused, setBloodTypeFocused] = useState(false);
   const [birthDateFocused, setBirthDateFocused] = useState(false);
+
+  const [exportModalVisible, setExportModalVisible] = useState(false);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [exportedData, setExportedData] = useState("");
+  const [importedData, setImportedData] = useState("");
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -54,7 +64,6 @@ export default function TabFourScreen() {
     if (gender) await AsyncStorage.setItem("profileGender", gender);
   };
 
-  // Updated state setters with auto-save
   const updateName = (value: string) => {
     setName(value);
     AsyncStorage.setItem("profileName", value);
@@ -90,6 +99,33 @@ export default function TabFourScreen() {
     }
   };
 
+  const exportProfileData = () => {
+    const data = {
+      name,
+      gender,
+      bloodType,
+      birthDate,
+      donations,
+    };
+    setExportedData(JSON.stringify(data, null, 2));
+    setExportModalVisible(true);
+  };
+
+  const importProfileData = () => {
+    try {
+      const data = JSON.parse(importedData);
+      if (data.name) setName(data.name);
+      if (data.gender) setGender(data.gender);
+      if (data.bloodType) setBloodType(data.bloodType);
+      if (data.birthDate) setBirthDate(data.birthDate);
+      if (data.donations) setAllDonations(data.donations);
+      saveProfile();
+      setImportModalVisible(false);
+    } catch (error) {
+      console.error("Invalid JSON data");
+    }
+  };
+
   const lastDonation =
     donations.length > 0 ? donations[donations.length - 1] : null;
 
@@ -101,8 +137,8 @@ export default function TabFourScreen() {
         ) : (
           <View style={[styles.photo, styles.placeholderPhoto]} />
         )}
-        <Pressable onPress={pickImage} style={styles.pickImageButton}>
-          <Text style={styles.pickImageText}>{strings.profile.pickImage}</Text>
+        <Pressable onPress={pickImage} style={styles.button}>
+          <Text style={styles.buttonText}>{strings.profile.pickImage}</Text>
         </Pressable>
         <TextInput
           style={[styles.input, styles.text]}
@@ -183,6 +219,65 @@ export default function TabFourScreen() {
           Ultima doação: {new Date(lastDonation).toLocaleDateString("pt-BR")}
         </Text>
       )}
+      <View style={styles.buttonContainer}>
+        <Pressable onPress={exportProfileData} style={styles.button}>
+          <Text style={styles.buttonText}>Exportar dados</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setImportModalVisible(true)}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>Importar dados</Text>
+        </Pressable>
+      </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={exportModalVisible}
+        onRequestClose={() => setExportModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ScrollView>
+              <Text style={styles.modalText}>{exportedData}</Text>
+            </ScrollView>
+            <Pressable
+              style={styles.closeButton}
+              onPress={() => setExportModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={importModalVisible}
+        onRequestClose={() => setImportModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput
+              style={[styles.input, styles.modalInput]}
+              placeholder="Paste JSON data here"
+              placeholderTextColor="#fff"
+              value={importedData}
+              onChangeText={setImportedData}
+              multiline
+            />
+            <Pressable style={styles.button} onPress={importProfileData}>
+              <Text style={styles.buttonText}>Import</Text>
+            </Pressable>
+            <Pressable
+              style={styles.closeButton}
+              onPress={() => setImportModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -255,17 +350,54 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginLeft: 5,
   },
-  pickImageButton: {
+  button: {
     marginTop: 10,
     padding: 10,
     backgroundColor: "#007AFF",
     borderRadius: 5,
+    marginHorizontal: 5,
   },
-  pickImageText: {
+  buttonText: {
     color: "#fff",
     fontSize: 16,
   },
   pressed: {
     opacity: 0.7,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#333",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  modalInput: {
+    color: "#fff",
+    borderColor: "#fff",
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#007AFF",
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });

@@ -4,7 +4,7 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
+  Pressable,
   Modal,
   FlatList,
   TouchableOpacity,
@@ -48,7 +48,7 @@ export default function TelaInicial() {
   return (
     <SafeAreaView style={estilos.container}>
       <View style={estilos.levelIndicatorContainer}>
-        <Text style={estilos.levelIndicatorText}>Level</Text>
+        <Text style={estilos.levelIndicatorText}>Nível</Text>
         <Text style={estilos.levelNumber}>{donations.length}</Text>
         {donations.length >= 100 ? (
           <Text style={estilos.emoji}>🏆</Text>
@@ -61,7 +61,9 @@ export default function TelaInicial() {
         ) : null}
       </View>
       <View style={estilos.contentContainer}>
-        <Button title="Add donation" onPress={() => setModalVisible(true)} />
+        <Pressable style={estilos.button} onPress={() => setModalVisible(true)}>
+          <Text style={estilos.buttonText}>Adicionar doação</Text>
+        </Pressable>
         <View style={estilos.scrollBlock}>
           <FlatList
             style={estilos.scrollContainer}
@@ -85,10 +87,12 @@ export default function TelaInicial() {
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={estilos.modalContainer}>
           <View style={estilos.modalContent}>
-            <Button
-              title="Pick a date"
+            <Pressable
+              style={estilos.button}
               onPress={() => setShowDatePicker(true)}
-            />
+            >
+              <Text style={estilos.buttonText}>Escolher uma data</Text>
+            </Pressable>
             <Text style={estilos.datePreview}>
               {date.toLocaleDateString("pt-BR")}
             </Text>
@@ -106,8 +110,15 @@ export default function TelaInicial() {
               />
             )}
             <View style={estilos.buttonRow}>
-              <Button title="Close" onPress={() => setModalVisible(false)} />
-              <Button title="Confirm" onPress={addDonation} />
+              <Pressable
+                style={estilos.button}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={estilos.buttonText}>Fechar</Text>
+              </Pressable>
+              <Pressable style={estilos.button} onPress={addDonation}>
+                <Text style={estilos.buttonText}>Confirmar</Text>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -193,5 +204,16 @@ const estilos = StyleSheet.create({
   emoji: {
     fontSize: 30,
     marginTop: 5,
+  },
+  button: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });

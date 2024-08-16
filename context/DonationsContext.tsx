@@ -30,9 +30,14 @@ export const DonationsProvider = ({ children }) => {
     await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
   };
 
+  const setAllDonations = async (newDonations: Date[]) => {
+    setDonations(newDonations);
+    await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
+  };
+
   return (
     <DonationsContext.Provider
-      value={{ donations, addDonation, deleteDonation }}
+      value={{ donations, addDonation, deleteDonation, setAllDonations }}
     >
       {children}
     </DonationsContext.Provider>
