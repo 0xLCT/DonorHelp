@@ -1,7 +1,14 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const DonationsContext = createContext([]);
+const DonationsContext = createContext<DonationsContextType | null>(null);
+
+export type DonationsContextType = {
+  donations: Date[];
+  addDonation: (date: Date) => Promise<void>;
+  deleteDonation: (index: number) => Promise<void>;
+  setAllDonations: (newDonations: Date[]) => Promise<void>;
+};
 
 export const DonationsProvider = ({ children }) => {
   const [donations, setDonations] = useState<Date[]>([]);
@@ -44,4 +51,10 @@ export const DonationsProvider = ({ children }) => {
   );
 };
 
-export const useDonations = () => useContext(DonationsContext);
+export const useDonations = (): DonationsContextType => {
+  const context = useContext(DonationsContext);
+  if (context === null) {
+    throw new Error("useDonations must be used within a DonationsProvider");
+  }
+  return context;
+};

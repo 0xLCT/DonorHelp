@@ -14,14 +14,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
 import { strings } from "../locales/strings";
-import { useDonations } from "@/context/DonationsContext";
+import { useDonations, DonationsContextType } from "@/context/DonationsContext";
 
 export default function TabFourScreen() {
-  const {
-    donations,
-    setAllDonations,
-  }: { donations: any[]; setAllDonations: (donations: any[]) => void } =
-    useDonations();
+  const { donations, setAllDonations } = useDonations() as DonationsContextType;
 
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | null>(null);
