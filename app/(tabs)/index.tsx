@@ -7,31 +7,26 @@ import {
   Pressable,
   Modal,
   FlatList,
-  TouchableOpacity,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { strings } from "../locales/strings";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { Platform, StatusBar } from "react-native";
 
 export default function TelaInicial() {
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [donations, setDonations] = useState<Date[]>([]);
+  const [donations, setDonations] = useState<string[]>([]);
 
   useEffect(() => {
-    const loadDonations = async () => {
-      const storedDonations = await AsyncStorage.getItem("donations");
-      if (storedDonations) {
-        setDonations(JSON.parse(storedDonations));
-      }
-    };
-    loadDonations();
+    AsyncStorage.getItem("donations").then((storedDonations) => {
+      if (storedDonations) setDonations(JSON.parse(storedDonations));
+    });
   }, []);
 
   const addDonation = async () => {
-    const newDonations = [...donations, date].sort(
+    const newDonations = [...donations, date.toISOString()].sort(
       (a, b) => new Date(a).getTime() - new Date(b).getTime()
     );
     setDonations(newDonations);
@@ -45,99 +40,91 @@ export default function TelaInicial() {
     await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
   };
 
+  const getLevelEmoji = () => {
+    if (donations.length >= 100) return "🏆";
+    if (donations.length >= 50) return "🥇";
+    if (donations.length >= 25) return "🥈";
+    if (donations.length >= 10) return "🥉";
+    return null;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-GB");
+  };
+
   return (
-    <SafeAreaView style={estilos.container}>
-      <View style={estilos.levelIndicatorContainer}>
-        <Text style={estilos.levelIndicatorText}>Nível</Text>
-        <Text style={estilos.levelNumber}>{donations.length}</Text>
-        {donations.length >= 100 ? (
-          <Text style={estilos.emoji}>🏆</Text>
-        ) : donations.length >= 50 ? (
-          <Text style={estilos.emoji}>🥇</Text>
-        ) : donations.length >= 25 ? (
-          <Text style={estilos.emoji}>🥈</Text>
-        ) : donations.length >= 10 ? (
-          <Text style={estilos.emoji}>🥉</Text>
-        ) : null}
-      </View>
-      <View style={estilos.contentContainer}>
-        <Pressable style={estilos.button} onPress={() => setModalVisible(true)}>
-          <Text style={estilos.buttonText}>Adicionar doação</Text>
-        </Pressable>
-        <View style={estilos.scrollBlock}>
-          <FlatList
-            style={estilos.scrollContainer}
-            data={donations.slice().reverse()}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => (
-              <View style={estilos.donationRow}>
-                <Text style={estilos.text}>
-                  {" "}
-                  #{donations.length - index}
-                  {new Date(item).toLocaleDateString("en-GB")}
-                </Text>
-                <TouchableOpacity onPress={() => deleteDonation(index)}>
-                  <Icon name="trash" size={25} color="white" />
-                </TouchableOpacity>
-              </View>
-            )}
-          />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.levelIndicator}>
+          <Text style={styles.levelText}>Nível</Text>
+          <Text style={styles.levelNumber}>{donations.length}</Text>
+          <Text style={styles.emoji}>{getLevelEmoji()}</Text>
         </View>
-      </View>
-      <Modal visible={modalVisible} transparent={true} animationType="slide">
-        <View style={estilos.modalContainer}>
-          <View style={estilos.modalContent}>
-            <Pressable
-              style={estilos.button}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={estilos.buttonText}>Escolher uma data</Text>
-            </Pressable>
-            <Text style={estilos.datePreview}>
-              {date.toLocaleDateString("pt-BR")}
-            </Text>
-            {showDatePicker && (
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display="default"
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (selectedDate) {
-                    setDate(selectedDate);
-                  }
-                }}
-              />
-            )}
-            <View style={estilos.buttonRow}>
-              <Pressable
-                style={estilos.button}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={estilos.buttonText}>Fechar</Text>
-              </Pressable>
-              <Pressable style={estilos.button} onPress={addDonation}>
-                <Text style={estilos.buttonText}>Confirmar</Text>
+        <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>Adicionar doação</Text>
+        </Pressable>
+        <FlatList
+          style={styles.list}
+          data={[...donations].reverse()}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={({ item, index }) => (
+            <View style={styles.donationRow}>
+              <Text style={styles.text}>
+                #{donations.length - index} {formatDate(item)}
+              </Text>
+              <Pressable onPress={() => deleteDonation(index)}>
+                <Icon name="trash" size={25} color="white" />
               </Pressable>
             </View>
+          )}
+        />
+        <Modal visible={modalVisible} transparent animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Pressable
+                style={styles.button}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={styles.buttonText}>Escolher uma data</Text>
+              </Pressable>
+              <Text style={styles.datePreview}>
+                {date.toLocaleDateString("pt-BR")}
+              </Text>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={(_, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) setDate(selectedDate);
+                  }}
+                />
+              )}
+              <View style={styles.buttonRow}>
+                <Pressable
+                  style={styles.button}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.buttonText}>Fechar</Text>
+                </Pressable>
+                <Pressable style={styles.button} onPress={addDonation}>
+                  <Text style={styles.buttonText}>Confirmar</Text>
+                </Pressable>
+              </View>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </View>
     </SafeAreaView>
   );
 }
 
-const estilos = StyleSheet.create({
-  contentContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 20,
-  },
-  text: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#111",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   container: {
     flex: 1,
@@ -145,6 +132,27 @@ const estilos = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#111",
   },
+  levelIndicator: { alignItems: "center", marginVertical: 10 },
+  levelText: { fontSize: 20, fontWeight: "bold", color: "white" },
+  levelNumber: { fontSize: 40, fontWeight: "bold", color: "white" },
+  emoji: { fontSize: 30, marginTop: 5 },
+  button: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+  },
+  buttonText: { color: "white", fontWeight: "bold", textAlign: "center" },
+  list: { width: "100%", height: "50%" },
+  donationRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  text: { color: "white", fontWeight: "bold" },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -163,57 +171,5 @@ const estilos = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
   },
-  donationRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  deleteButton: {
-    color: "red",
-    fontWeight: "bold",
-  },
-  datePreview: {
-    marginVertical: 10,
-    fontSize: 16,
-    color: "black",
-  },
-  scrollContainer: {
-    width: "100%",
-  },
-  scrollBlock: {
-    height: "50%",
-  },
-  levelIndicatorContainer: {
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  levelIndicatorText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-  },
-  levelNumber: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: "white",
-  },
-  emoji: {
-    fontSize: 30,
-    marginTop: 5,
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 5,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
+  datePreview: { marginVertical: 10, fontSize: 16, color: "black" },
 });
