@@ -1,26 +1,45 @@
-import { Tabs } from "expo-router";
-import React from "react";
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { BlurView } from 'expo-blur';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
-import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+const TabBarIcon = ({ name, color }) => {
+  return <Ionicons name={name} size={24} color={color} />;
+};
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#fff", // white text color
+        tabBarActiveTintColor: '#BB86FC',
+        tabBarInactiveTintColor: '#FFFFFF',
         tabBarStyle: {
-          backgroundColor: "#222", // dark background color
+          position: 'absolute',
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 60 + insets.bottom,
         },
+        tabBarBackground: () => (
+          <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
+        ),
         headerShown: false,
+        tabBarItemStyle: {
+          paddingVertical: 5,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Inicio",
+          title: 'Inicio',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "home" : "home-outline"}
+              name={focused ? 'home' : 'home-outline'}
               color={color}
             />
           ),
@@ -29,10 +48,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="exames"
         options={{
-          title: "Exames",
+          title: 'Exames',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
+              name={focused ? 'flask' : 'flask-outline'}
               color={color}
             />
           ),
@@ -41,12 +60,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="info"
         options={{
-          title: "Info",
+          title: 'Info',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={
-                focused ? "information-circle" : "information-circle-outline"
-              }
+              name={focused ? 'information-circle' : 'information-circle-outline'}
               color={color}
             />
           ),
@@ -55,10 +72,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="perfil"
         options={{
-          title: "Perfil",
+          title: 'Perfil',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "person" : "person-outline"}
+              name={focused ? 'person' : 'person-outline'}
               color={color}
             />
           ),
@@ -67,3 +84,14 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 0,
+    elevation: 0,
+  },
+});
