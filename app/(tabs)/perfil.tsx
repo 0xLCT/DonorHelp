@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,30 +12,25 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { useDonations, DonationsContextType } from '@/context/DonationsContext';
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import { useDonations, DonationsContextType } from "@/context/DonationsContext";
 
+import InputField from "../../components/InputField";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const InputField = ({ value, onChangeText, placeholder, icon }) => {
-  const [isFocused, setIsFocused] = useState(false);
-
+const Perfil = () => {
   return (
-    <View style={styles.inputContainer}>
-      <Ionicons name={icon} size={24} color={isFocused ? '#BB86FC' : '#888'} style={styles.inputIcon} />
-      <TextInput
-        style={[styles.input, isFocused && styles.inputFocused]}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor="#888"
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+    <View>
+      <InputField
+        value=""
+        onChangeText={() => {}}
+        placeholder="Enter text"
+        icon="md-person"
       />
     </View>
   );
@@ -44,41 +39,43 @@ const InputField = ({ value, onChangeText, placeholder, icon }) => {
 export default function ProfileScreen() {
   const { donations, setAllDonations } = useDonations() as DonationsContextType;
 
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState<'male' | 'female' | null>(null);
-  const [bloodType, setBloodType] = useState('');
-  const [birthDate, setBirthDate] = useState('');
+  const [name, setName] = useState("");
+  const [gender, setGender] = useState<"male" | "female" | null>(null);
+  const [bloodType, setBloodType] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState<'export' | 'import'>('export');
-  const [exportedData, setExportedData] = useState('');
-  const [importedData, setImportedData] = useState('');
+  const [modalContent, setModalContent] = useState<"export" | "import">(
+    "export"
+  );
+  const [exportedData, setExportedData] = useState("");
+  const [importedData, setImportedData] = useState("");
 
   useEffect(() => {
     const loadProfile = async () => {
-      const storedName = await AsyncStorage.getItem('profileName');
-      const storedBloodType = await AsyncStorage.getItem('profileBloodType');
-      const storedBirthDate = await AsyncStorage.getItem('profileBirthDate');
-      const storedPhoto = await AsyncStorage.getItem('profilePhoto');
-      const storedGender = await AsyncStorage.getItem('profileGender');
+      const storedName = await AsyncStorage.getItem("profileName");
+      const storedBloodType = await AsyncStorage.getItem("profileBloodType");
+      const storedBirthDate = await AsyncStorage.getItem("profileBirthDate");
+      const storedPhoto = await AsyncStorage.getItem("profilePhoto");
+      const storedGender = await AsyncStorage.getItem("profileGender");
 
       if (storedName) setName(storedName);
       if (storedBloodType) setBloodType(storedBloodType);
       if (storedBirthDate) setBirthDate(storedBirthDate);
       if (storedPhoto) setPhoto(storedPhoto);
-      if (storedGender) setGender(storedGender as 'male' | 'female');
+      if (storedGender) setGender(storedGender as "male" | "female");
     };
 
     loadProfile();
   }, []);
 
   const saveProfile = useCallback(async () => {
-    await AsyncStorage.setItem('profileName', name);
-    await AsyncStorage.setItem('profileBloodType', bloodType);
-    await AsyncStorage.setItem('profileBirthDate', birthDate);
-    if (photo) await AsyncStorage.setItem('profilePhoto', photo);
-    if (gender) await AsyncStorage.setItem('profileGender', gender);
+    await AsyncStorage.setItem("profileName", name);
+    await AsyncStorage.setItem("profileBloodType", bloodType);
+    await AsyncStorage.setItem("profileBirthDate", birthDate);
+    if (photo) await AsyncStorage.setItem("profilePhoto", photo);
+    if (gender) await AsyncStorage.setItem("profileGender", gender);
   }, [name, bloodType, birthDate, photo, gender]);
 
   const pickImage = useCallback(async () => {
@@ -92,14 +89,14 @@ export default function ProfileScreen() {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const newPhoto = result.assets[0].uri;
       setPhoto(newPhoto);
-      AsyncStorage.setItem('profilePhoto', newPhoto);
+      AsyncStorage.setItem("profilePhoto", newPhoto);
     }
   }, []);
 
   const exportProfileData = useCallback(() => {
     const data = { name, gender, bloodType, birthDate, donations };
     setExportedData(JSON.stringify(data, null, 2));
-    setModalContent('export');
+    setModalContent("export");
     setModalVisible(true);
   }, [name, gender, bloodType, birthDate, donations]);
 
@@ -114,28 +111,26 @@ export default function ProfileScreen() {
       saveProfile();
       setModalVisible(false);
     } catch (error) {
-      console.error('Invalid JSON data');
+      console.error("Invalid JSON data");
     }
   }, [importedData, saveProfile, setAllDonations]);
 
-  const lastDonation = donations.length > 0 ? donations[donations.length - 1] : null;
+  const lastDonation =
+    donations.length > 0 ? donations[donations.length - 1] : null;
 
   const getLevelEmoji = useCallback(() => {
-    if (donations.length >= 100) return '🏆';
-    if (donations.length >= 50) return '🥇';
-    if (donations.length >= 25) return '🥈';
-    if (donations.length >= 10) return '🥉';
-    return '🩸';
+    if (donations.length >= 100) return "🏆";
+    if (donations.length >= 50) return "🥇";
+    if (donations.length >= 25) return "🥈";
+    if (donations.length >= 10) return "🥉";
+    return "🩸";
   }, [donations.length]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#1A1A1A', '#121212']}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={["#1A1A1A", "#121212"]} style={styles.gradient}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardAvoidingView}
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -174,17 +169,31 @@ export default function ProfileScreen() {
             <Text style={styles.label}>Gender</Text>
             <View style={styles.genderSelector}>
               <AnimatedPressable
-                style={[styles.genderOption, gender === 'male' && styles.selectedGender]}
-                onPress={() => setGender('male')}
+                style={[
+                  styles.genderOption,
+                  gender === "male" && styles.selectedGender,
+                ]}
+                onPress={() => setGender("male")}
               >
-                <Ionicons name="male" size={24} color={gender === 'male' ? '#BB86FC' : '#fff'} />
+                <Ionicons
+                  name="male"
+                  size={24}
+                  color={gender === "male" ? "#BB86FC" : "#fff"}
+                />
                 <Text style={styles.genderText}>Male</Text>
               </AnimatedPressable>
               <AnimatedPressable
-                style={[styles.genderOption, gender === 'female' && styles.selectedGender]}
-                onPress={() => setGender('female')}
+                style={[
+                  styles.genderOption,
+                  gender === "female" && styles.selectedGender,
+                ]}
+                onPress={() => setGender("female")}
               >
-                <Ionicons name="female" size={24} color={gender === 'female' ? '#BB86FC' : '#fff'} />
+                <Ionicons
+                  name="female"
+                  size={24}
+                  color={gender === "female" ? "#BB86FC" : "#fff"}
+                />
                 <Text style={styles.genderText}>Female</Text>
               </AnimatedPressable>
             </View>
@@ -201,7 +210,10 @@ export default function ProfileScreen() {
               {lastDonation && (
                 <View style={styles.statItem}>
                   <Text style={styles.statValue}>
-                    {new Date(lastDonation).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                    {new Date(lastDonation).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}
                   </Text>
                   <Text style={styles.statLabel}>Last Donation</Text>
                 </View>
@@ -209,12 +221,25 @@ export default function ProfileScreen() {
             </View>
 
             <View style={styles.buttonContainer}>
-              <AnimatedPressable onPress={exportProfileData} style={styles.button}>
+              <AnimatedPressable
+                onPress={exportProfileData}
+                style={styles.button}
+              >
                 <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
                 <Text style={styles.buttonText}>Export Data</Text>
               </AnimatedPressable>
-              <AnimatedPressable onPress={() => { setModalContent('import'); setModalVisible(true); }} style={styles.button}>
-                <Ionicons name="cloud-download-outline" size={24} color="#fff" />
+              <AnimatedPressable
+                onPress={() => {
+                  setModalContent("import");
+                  setModalVisible(true);
+                }}
+                style={styles.button}
+              >
+                <Ionicons
+                  name="cloud-download-outline"
+                  size={24}
+                  color="#fff"
+                />
                 <Text style={styles.buttonText}>Import Data</Text>
               </AnimatedPressable>
             </View>
@@ -230,7 +255,7 @@ export default function ProfileScreen() {
       >
         <BlurView intensity={100} style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            {modalContent === 'export' ? (
+            {modalContent === "export" ? (
               <ScrollView style={styles.modalScrollView}>
                 <Text style={styles.modalText}>{exportedData}</Text>
               </ScrollView>
@@ -245,8 +270,11 @@ export default function ProfileScreen() {
               />
             )}
             <View style={styles.modalButtonContainer}>
-              {modalContent === 'import' && (
-                <AnimatedPressable style={styles.modalButton} onPress={importProfileData}>
+              {modalContent === "import" && (
+                <AnimatedPressable
+                  style={styles.modalButton}
+                  onPress={importProfileData}
+                >
                   <Text style={styles.modalButtonText}>Import</Text>
                 </AnimatedPressable>
               )}
@@ -267,7 +295,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: "#121212",
   },
   gradient: {
     flex: 1,
@@ -277,8 +305,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 40,
     paddingHorizontal: 20,
   },
@@ -291,156 +319,135 @@ const styles = StyleSheet.create({
     borderRadius: 75,
   },
   placeholderPhoto: {
-    backgroundColor: '#2C2C2C',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#2C2C2C",
+    justifyContent: "center",
+    alignItems: "center",
   },
   editPhotoButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: 'rgba(187, 134, 252, 0.3)',
+    backgroundColor: "rgba(187, 134, 252, 0.3)",
     borderRadius: 20,
     padding: 10,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    height: 50,
-    marginBottom: 20,
-    paddingHorizontal: 15,
-    borderRadius: 25,
-    backgroundColor: '#2C2C2C',
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 16,
-  },
-  inputFocused: {
-    borderColor: '#BB86FC',
-  },
   label: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 20,
     marginBottom: 10,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   genderSelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     marginBottom: 30,
   },
   genderOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '48%',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "48%",
     padding: 15,
     borderWidth: 1,
-    borderColor: '#BB86FC',
+    borderColor: "#BB86FC",
     borderRadius: 25,
   },
   selectedGender: {
-    backgroundColor: 'rgba(187, 134, 252, 0.2)',
+    backgroundColor: "rgba(187, 134, 252, 0.2)",
   },
   genderText: {
-    color: '#fff',
+    color: "#fff",
     marginLeft: 10,
     fontSize: 16,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
     marginBottom: 30,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   statValue: {
-    color: '#BB86FC',
+    color: "#BB86FC",
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   statLabel: {
-    color: '#888',
+    color: "#888",
     fontSize: 14,
     marginTop: 5,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '48%',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "48%",
     padding: 15,
-    backgroundColor: '#BB86FC',
+    backgroundColor: "#BB86FC",
     borderRadius: 25,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 10,
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    width: '90%',
-    maxHeight: '80%',
-    backgroundColor: '#1E1E1E',
+    width: "90%",
+    maxHeight: "80%",
+    backgroundColor: "#1E1E1E",
     borderRadius: 25,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalScrollView: {
     maxHeight: 300,
-    width: '100%',
+    width: "100%",
   },
   modalText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
   },
   modalInput: {
-    width: '100%',
+    width: "100%",
     height: 200,
-    backgroundColor: '#2C2C2C',
+    backgroundColor: "#2C2C2C",
     borderRadius: 15,
     padding: 15,
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   modalButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
     marginTop: 20,
   },
   modalButton: {
     paddingVertical: 12,
     paddingHorizontal: 30,
-    backgroundColor: '#BB86FC',
+    backgroundColor: "#BB86FC",
     borderRadius: 25,
   },
   modalButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

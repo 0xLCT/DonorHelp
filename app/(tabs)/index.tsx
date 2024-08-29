@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -10,14 +10,19 @@ import {
   Platform,
   StatusBar,
   Animated,
-} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const LevelIndicator = ({ level, emoji }) => (
+interface LevelIndicatorProps {
+  level: number;
+  emoji: string;
+}
+
+const LevelIndicator: React.FC<LevelIndicatorProps> = ({ level, emoji }) => (
   <View style={styles.levelIndicator}>
     <Text style={styles.levelText}>Nível</Text>
     <Text style={styles.levelNumber}>{level}</Text>
@@ -25,7 +30,19 @@ const LevelIndicator = ({ level, emoji }) => (
   </View>
 );
 
-const DonationItem = ({ item, index, totalDonations, onDelete }) => {
+interface DonationItemProps {
+  item: string;
+  index: number;
+  totalDonations: number;
+  onDelete: (index: number) => void;
+}
+
+const DonationItem: React.FC<DonationItemProps> = ({
+  item,
+  index,
+  totalDonations,
+  onDelete,
+}) => {
   const scaleValue = useRef(new Animated.Value(1)).current;
   const opacityValue = useRef(new Animated.Value(0)).current;
 
@@ -61,28 +78,28 @@ const DonationItem = ({ item, index, totalDonations, onDelete }) => {
 
   return (
     <AnimatedPressable
-      style={[
-        styles.donationRow,
-        { transform: [{ scale: scaleValue }] },
-      ]}
+      style={[styles.donationRow, { transform: [{ scale: scaleValue }] }]}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
     >
       <Text style={styles.text}>
-        #{totalDonations - index} {new Date(item).toLocaleDateString('en-GB')}
+        #{totalDonations - index} {new Date(item).toLocaleDateString("en-GB")}
       </Text>
       <Pressable
         onPress={() => onDelete(index)}
         onPressIn={onDeletePressIn}
         onPressOut={onDeletePressOut}
         style={styles.deleteButton}
-        android_ripple={{ color: 'rgba(255, 255, 255, 0.3)', borderless: true, radius: 28 }}
+        android_ripple={{
+          color: "rgba(255, 255, 255, 0.3)",
+          borderless: true,
+          radius: 28,
+        }}
       >
         <Ionicons name="trash-outline" size={24} color="#FF4136" />
-        <Animated.View style={[
-          styles.rippleEffect,
-          { opacity: opacityValue }
-        ]} />
+        <Animated.View
+          style={[styles.rippleEffect, { opacity: opacityValue }]}
+        />
       </Pressable>
     </AnimatedPressable>
   );
@@ -95,7 +112,7 @@ export default function TelaInicial() {
   const [donations, setDonations] = useState<string[]>([]);
 
   useEffect(() => {
-    AsyncStorage.getItem('donations').then((storedDonations) => {
+    AsyncStorage.getItem("donations").then((storedDonations) => {
       if (storedDonations) setDonations(JSON.parse(storedDonations));
     });
   }, []);
@@ -105,22 +122,25 @@ export default function TelaInicial() {
       (a, b) => new Date(b).getTime() - new Date(a).getTime()
     );
     setDonations(newDonations);
-    await AsyncStorage.setItem('donations', JSON.stringify(newDonations));
+    await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
     setModalVisible(false);
   }, [donations, date]);
 
-  const deleteDonation = useCallback(async (index: number) => {
-    const newDonations = donations.filter((_, i) => i !== index);
-    setDonations(newDonations);
-    await AsyncStorage.setItem('donations', JSON.stringify(newDonations));
-  }, [donations]);
+  const deleteDonation = useCallback(
+    async (index: number) => {
+      const newDonations = donations.filter((_, i) => i !== index);
+      setDonations(newDonations);
+      await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
+    },
+    [donations]
+  );
 
   const getLevelEmoji = useCallback(() => {
-    if (donations.length >= 100) return '🏆';
-    if (donations.length >= 50) return '🥇';
-    if (donations.length >= 25) return '🥈';
-    if (donations.length >= 10) return '🥉';
-    return '🩸';
+    if (donations.length >= 100) return "🏆";
+    if (donations.length >= 50) return "🥇";
+    if (donations.length >= 25) return "🥈";
+    if (donations.length >= 10) return "🥉";
+    return "🩸";
   }, [donations.length]);
 
   return (
@@ -157,7 +177,7 @@ export default function TelaInicial() {
               >
                 <Ionicons name="calendar" size={24} color="#BB86FC" />
                 <Text style={styles.dateButtonText}>
-                  {date.toLocaleDateString('pt-BR')}
+                  {date.toLocaleDateString("pt-BR")}
                 </Text>
               </Pressable>
               {showDatePicker && (
@@ -197,102 +217,102 @@ export default function TelaInicial() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#121212',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: "#121212",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#121212',
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "#121212",
     paddingHorizontal: 20,
     paddingBottom: 60, // Add this line
   },
   levelIndicator: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     borderRadius: 15,
     paddingVertical: 20,
     paddingHorizontal: 40, // Increased horizontal padding
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
   },
-  levelText: { fontSize: 18, fontWeight: '600', color: '#E0E0E0' },
-  levelNumber: { fontSize: 48, fontWeight: 'bold', color: '#BB86FC' },
+  levelText: { fontSize: 18, fontWeight: "600", color: "#E0E0E0" },
+  levelNumber: { fontSize: 48, fontWeight: "bold", color: "#BB86FC" },
   emoji: { fontSize: 36, marginTop: 10 },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#BB86FC',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#BB86FC",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 25,
     marginBottom: 20,
   },
   addButtonText: {
-    color: '#121212',
-    fontWeight: 'bold',
+    color: "#121212",
+    fontWeight: "bold",
     fontSize: 16,
     marginLeft: 8,
   },
-  list: { width: '100%' },
+  list: { width: "100%" },
   donationRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 16,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     borderRadius: 10,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 3,
   },
-  text: { color: '#E0E0E0', fontWeight: '500', fontSize: 16 },
+  text: { color: "#E0E0E0", fontWeight: "500", fontSize: 16 },
   deleteButton: {
     padding: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
     borderRadius: 28,
   },
   rippleEffect: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: 28,
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.7)",
   },
   modalContent: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#E0E0E0',
+    fontWeight: "bold",
+    color: "#E0E0E0",
     marginBottom: 20,
   },
   dateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2C2C2C',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2C2C2C",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -301,35 +321,35 @@ const styles = StyleSheet.create({
   dateButtonText: {
     marginLeft: 10,
     fontSize: 16,
-    color: '#E0E0E0',
+    color: "#E0E0E0",
   },
   buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   button: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: '#2C2C2C',
+    backgroundColor: "#2C2C2C",
     marginRight: 10,
   },
   confirmButton: {
-    backgroundColor: '#BB86FC',
+    backgroundColor: "#BB86FC",
     marginLeft: 10,
   },
   cancelButtonText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
-    color: '#E0E0E0',
+    color: "#E0E0E0",
   },
   confirmButtonText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
-    color: '#121212',
+    color: "#121212",
   },
 });

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DonationsContext = createContext<DonationsContextType | null>(null);
@@ -10,7 +10,11 @@ export type DonationsContextType = {
   setAllDonations: (newDonations: Date[]) => Promise<void>;
 };
 
-export const DonationsProvider = ({ children }) => {
+interface DonationsProviderProps {
+  children: ReactNode;
+}
+
+export const DonationsProvider = ({ children }: DonationsProviderProps) => {
   const [donations, setDonations] = useState<Date[]>([]);
 
   useEffect(() => {
