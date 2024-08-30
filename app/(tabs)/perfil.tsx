@@ -23,19 +23,6 @@ import { useDonations, DonationsContextType } from "@/context/DonationsContext";
 import InputField from "../../components/InputField";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const Perfil = () => {
-  return (
-    <View>
-      <InputField
-        value=""
-        onChangeText={() => {}}
-        placeholder="Enter text"
-        icon="md-person"
-      />
-    </View>
-  );
-};
-
 export default function ProfileScreen() {
   const { donations, setAllDonations } = useDonations() as DonationsContextType;
 
@@ -70,13 +57,28 @@ export default function ProfileScreen() {
     loadProfile();
   }, []);
 
-  const saveProfile = useCallback(async () => {
-    await AsyncStorage.setItem("profileName", name);
-    await AsyncStorage.setItem("profileBloodType", bloodType);
-    await AsyncStorage.setItem("profileBirthDate", birthDate);
-    if (photo) await AsyncStorage.setItem("profilePhoto", photo);
-    if (gender) await AsyncStorage.setItem("profileGender", gender);
-  }, [name, bloodType, birthDate, photo, gender]);
+  const handleNameChange = useCallback(async (text: string) => {
+    setName(text);
+    await AsyncStorage.setItem("profileName", text);
+  }, []);
+
+  const handleBloodTypeChange = useCallback(async (text: string) => {
+    setBloodType(text);
+    await AsyncStorage.setItem("profileBloodType", text);
+  }, []);
+
+  const handleBirthDateChange = useCallback(async (text: string) => {
+    setBirthDate(text);
+    await AsyncStorage.setItem("profileBirthDate", text);
+  }, []);
+
+  const handleGenderChange = useCallback(
+    async (selectedGender: "male" | "female") => {
+      setGender(selectedGender);
+      await AsyncStorage.setItem("profileGender", selectedGender);
+    },
+    []
+  );
 
   const pickImage = useCallback(async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -103,17 +105,23 @@ export default function ProfileScreen() {
   const importProfileData = useCallback(() => {
     try {
       const data = JSON.parse(importedData);
-      if (data.name) setName(data.name);
-      if (data.gender) setGender(data.gender);
-      if (data.bloodType) setBloodType(data.bloodType);
-      if (data.birthDate) setBirthDate(data.birthDate);
+      if (data.name) handleNameChange(data.name);
+      if (data.gender) handleGenderChange(data.gender);
+      if (data.bloodType) handleBloodTypeChange(data.bloodType);
+      if (data.birthDate) handleBirthDateChange(data.birthDate);
       if (data.donations) setAllDonations(data.donations);
-      saveProfile();
       setModalVisible(false);
     } catch (error) {
       console.error("Invalid JSON data");
     }
-  }, [importedData, saveProfile, setAllDonations]);
+  }, [
+    importedData,
+    handleNameChange,
+    handleGenderChange,
+    handleBloodTypeChange,
+    handleBirthDateChange,
+    setAllDonations,
+  ]);
 
   const lastDonation =
     donations.length > 0 ? donations[donations.length - 1] : null;
@@ -142,26 +150,30 @@ export default function ProfileScreen() {
                   <Ionicons name="person" size={60} color="#BB86FC" />
                 </View>
               )}
-              <BlurView intensity={80} style={styles.editPhotoButton}>
-                <Ionicons name="camera" size={20} color="#fff" />
-              </BlurView>
+
+              <Ionicons
+                name="camera"
+                size={20}
+                color="#fff"
+                style={styles.editPhotoButton}
+              />
             </Pressable>
 
             <InputField
               value={name}
-              onChangeText={setName}
+              onChangeText={handleNameChange}
               placeholder="Name"
               icon="person-outline"
             />
             <InputField
               value={bloodType}
-              onChangeText={setBloodType}
+              onChangeText={handleBloodTypeChange}
               placeholder="Blood Type"
               icon="water-outline"
             />
             <InputField
               value={birthDate}
-              onChangeText={setBirthDate}
+              onChangeText={handleBirthDateChange}
               placeholder="Birth Date"
               icon="calendar-outline"
             />
@@ -173,7 +185,7 @@ export default function ProfileScreen() {
                   styles.genderOption,
                   gender === "male" && styles.selectedGender,
                 ]}
-                onPress={() => setGender("male")}
+                onPress={() => handleGenderChange("male")}
               >
                 <Ionicons
                   name="male"
@@ -187,7 +199,7 @@ export default function ProfileScreen() {
                   styles.genderOption,
                   gender === "female" && styles.selectedGender,
                 ]}
-                onPress={() => setGender("female")}
+                onPress={() => handleGenderChange("female")}
               >
                 <Ionicons
                   name="female"

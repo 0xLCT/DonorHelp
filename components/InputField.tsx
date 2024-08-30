@@ -2,7 +2,19 @@ import React, { useState } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const InputField = ({ value, onChangeText, placeholder, icon }) => {
+interface InputFieldProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  icon: string;
+}
+
+const InputField: React.FC<InputFieldProps> = ({
+  value,
+  onChangeText,
+  placeholder,
+  icon,
+}) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
