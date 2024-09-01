@@ -14,6 +14,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -107,9 +108,12 @@ const DonationItem: React.FC<DonationItemProps> = ({
 
 export default function TelaInicial() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [notificationModalVisible, setNotificationModalVisible] =
+    useState(false);
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [donations, setDonations] = useState<string[]>([]);
+  const [reminderDate, setReminderDate] = useState(new Date());
 
   useEffect(() => {
     AsyncStorage.getItem("donations").then((storedDonations) => {
@@ -143,10 +147,39 @@ export default function TelaInicial() {
     return "🩸";
   }, [donations.length]);
 
+  const scheduleNotification = useCallback(() => {
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Lembrete de Doação de Sangue",
+        body: "Está na hora de doar sangue!",
+      },
+      trigger: { seconds: 10 },
+    });
+    setNotificationModalVisible(false);
+  }, []);
+
+  const scheduleCustomNotification = useCallback(() => {
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Lembrete de Doação de Sangue",
+        body: "Está na hora de doar sangue!",
+      },
+      trigger: { date: reminderDate },
+    });
+    setNotificationModalVisible(false);
+  }, [reminderDate]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <LevelIndicator level={donations.length} emoji={getLevelEmoji()} />
+        <AnimatedPressable
+          style={styles.addButton}
+          onPress={() => setNotificationModalVisible(true)}
+        >
+          <Ionicons name="notifications" size={24} color="white" />
+          <Text style={styles.addButtonText}>Lembrete de Doação</Text>
+        </AnimatedPressable>
         <AnimatedPressable
           style={styles.addButton}
           onPress={() => setModalVisible(true)}
@@ -154,6 +187,7 @@ export default function TelaInicial() {
           <Ionicons name="add" size={24} color="white" />
           <Text style={styles.addButtonText}>Adicionar doação</Text>
         </AnimatedPressable>
+
         <FlatList
           style={styles.list}
           data={donations}
@@ -204,6 +238,58 @@ export default function TelaInicial() {
                   onPress={addDonation}
                 >
                   <Text style={styles.confirmButtonText}>Confirmar</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+        <Modal
+          visible={notificationModalVisible}
+          transparent
+          animationType="slide"
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Lembrar de Doar</Text>
+              <Pressable
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Ionicons name="calendar" size={24} color="#BB86FC" />
+                <Text style={styles.dateButtonText}>
+                  {reminderDate.toLocaleDateString("pt-BR")}
+                </Text>
+              </Pressable>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={reminderDate}
+                  mode="date"
+                  display="default"
+                  onChange={(_, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) setReminderDate(selectedDate);
+                  }}
+                  textColor="#FFFFFF"
+                />
+              )}
+              <View style={styles.buttonRow}>
+                <Pressable
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={() => setNotificationModalVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={scheduleNotification}
+                >
+                  <Text style={styles.confirmButtonText}>Teste de 10s</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={scheduleCustomNotification}
+                >
+                  <Text style={styles.confirmButtonText}>Confirmar Data</Text>
                 </Pressable>
               </View>
             </View>

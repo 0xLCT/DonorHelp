@@ -45,7 +45,8 @@
     "react-native-web": "~0.19.10",
     "undefined": "react-native-community/datetimepicker",
     "expo-blur": "~13.0.2",
-    "expo-linear-gradient": "~13.0.2"
+    "expo-linear-gradient": "~13.0.2",
+    "expo-notifications": "~0.28.18"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
