@@ -21,12 +21,12 @@ interface Card {
   hemoglobin: string;
   iron: string;
   bloodPressure: string;
+  notes: string; // Add notes field
 }
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
-// Add type for InputField props
 interface InputFieldProps {
   value: string;
   onChangeText: (text: string) => void;
@@ -86,7 +86,6 @@ const InputField: React.FC<InputFieldProps> = ({
   );
 };
 
-// Add type for CardItem props
 interface CardItemProps {
   card: Card;
   updateCard: (id: number, field: keyof Card, value: string) => void;
@@ -119,25 +118,35 @@ const CardItem: React.FC<CardItemProps> = React.memo(
           <InputField
             value={card.date}
             onChangeText={(text) => updateCard(card.id, "date", text)}
-            placeholder="Date"
+            placeholder="Data"
             style={styles.dateInput}
           />
           <InputField
             value={card.hemoglobin}
             onChangeText={(text) => updateCard(card.id, "hemoglobin", text)}
-            placeholder="Hemoglobin Level"
+            placeholder="Hemoglobina"
             style={styles.hemoglobinInput}
           />
         </View>
+        <View style={styles.rowContainer}>
+          <InputField
+            value={card.iron}
+            onChangeText={(text) => updateCard(card.id, "iron", text)}
+            placeholder="Ferro"
+            style={styles.ironInput}
+          />
+          <InputField
+            value={card.bloodPressure}
+            onChangeText={(text) => updateCard(card.id, "bloodPressure", text)}
+            placeholder="Pressão Arterial"
+            style={styles.pressureInput}
+          />
+        </View>
         <InputField
-          value={card.iron}
-          onChangeText={(text) => updateCard(card.id, "iron", text)}
-          placeholder="Iron Level"
-        />
-        <InputField
-          value={card.bloodPressure}
-          onChangeText={(text) => updateCard(card.id, "bloodPressure", text)}
-          placeholder="Pressão Arterial"
+          value={card.notes}
+          onChangeText={(text) => updateCard(card.id, "notes", text)}
+          placeholder="Notas"
+          style={styles.notesInput}
         />
         <AnimatedTouchableOpacity
           onPress={() => deleteCard(card.id)}
@@ -177,6 +186,7 @@ export default function TabTwoScreen() {
       hemoglobin: "",
       iron: "",
       bloodPressure: "",
+      notes: "", // Initialize notes field
     };
     const updatedCards = [...cards, newCard];
     setCards(updatedCards);
@@ -207,7 +217,7 @@ export default function TabTwoScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={styles.content}>
-        <Text style={styles.label}>Hemocentros próximos</Text>
+        <Text style={styles.label}>Exames</Text>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardAvoidingView}
@@ -224,7 +234,7 @@ export default function TabTwoScreen() {
           </ScrollView>
           <AnimatedTouchableOpacity onPress={addCard} style={styles.addButton}>
             <Ionicons name="add" size={24} color="#FFFFFF" />
-            <Text style={styles.addButtonText}>Add Card</Text>
+            <Text style={styles.addButtonText}>Adicionar exames</Text>
           </AnimatedTouchableOpacity>
         </KeyboardAvoidingView>
       </View>
@@ -245,7 +255,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#121212",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    paddingBottom: 60, // Add this line
+    paddingBottom: 60,
   },
   content: {
     flex: 1,
@@ -304,6 +314,16 @@ const styles = StyleSheet.create({
   },
   hemoglobinInput: {
     width: "68%",
+  },
+  ironInput: {
+    width: "47%",
+  },
+  pressureInput: {
+    width: "47%",
+  },
+  notesInput: {
+    width: "100%",
+    marginTop: 10,
   },
   addButton: {
     backgroundColor: "#BB86FC",
