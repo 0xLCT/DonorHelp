@@ -162,19 +162,19 @@ export default function ProfileScreen() {
             <InputField
               value={name}
               onChangeText={handleNameChange}
-              placeholder="Name"
+              placeholder="Nome"
               icon="person-outline"
             />
             <InputField
               value={bloodType}
               onChangeText={handleBloodTypeChange}
-              placeholder="Blood Type"
+              placeholder="Tipo sanguíneo"
               icon="water-outline"
             />
             <InputField
               value={birthDate}
               onChangeText={handleBirthDateChange}
-              placeholder="Birth Date"
+              placeholder="Data de nascimento"
               icon="calendar-outline"
             />
 
@@ -192,7 +192,7 @@ export default function ProfileScreen() {
                   size={24}
                   color={gender === "male" ? "#BB86FC" : "#fff"}
                 />
-                <Text style={styles.genderText}>Male</Text>
+                <Text style={styles.genderText}>Homem</Text>
               </AnimatedPressable>
               <AnimatedPressable
                 style={[
@@ -206,18 +206,18 @@ export default function ProfileScreen() {
                   size={24}
                   color={gender === "female" ? "#BB86FC" : "#fff"}
                 />
-                <Text style={styles.genderText}>Female</Text>
+                <Text style={styles.genderText}>Mulher</Text>
               </AnimatedPressable>
             </View>
 
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{donations.length}</Text>
-                <Text style={styles.statLabel}>Donations</Text>
+                <Text style={styles.statLabel}>Doações</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{getLevelEmoji()}</Text>
-                <Text style={styles.statLabel}>Level</Text>
+                <Text style={styles.statLabel}>Nivel</Text>
               </View>
               {lastDonation && (
                 <View style={styles.statItem}>
@@ -227,7 +227,7 @@ export default function ProfileScreen() {
                       month: "2-digit",
                     })}
                   </Text>
-                  <Text style={styles.statLabel}>Last Donation</Text>
+                  <Text style={styles.statLabel}>Ultima doação</Text>
                 </View>
               )}
             </View>
@@ -238,7 +238,7 @@ export default function ProfileScreen() {
                 style={styles.button}
               >
                 <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
-                <Text style={styles.buttonText}>Export Data</Text>
+                <Text style={styles.buttonText}>Exportar Dados</Text>
               </AnimatedPressable>
               <AnimatedPressable
                 onPress={() => {
@@ -252,7 +252,7 @@ export default function ProfileScreen() {
                   size={24}
                   color="#fff"
                 />
-                <Text style={styles.buttonText}>Import Data</Text>
+                <Text style={styles.buttonText}>Importar Dados</Text>
               </AnimatedPressable>
             </View>
           </ScrollView>
