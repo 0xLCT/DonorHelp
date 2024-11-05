@@ -1,0 +1,2 @@
+This app only stores your information locally and never connects to the internet 
+Any permission required are strictly for local use and never leaves the app

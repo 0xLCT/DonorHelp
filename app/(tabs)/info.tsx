@@ -93,17 +93,40 @@ export default function TabThreeScreen() {
               </Text>
             </Pressable>
           </View>
-
+          <Text style={styles.label}>Perguntas frequentes</Text>
+          <Text style={styles.labelsmall}>Antes da doação</Text>
+          <InfoBox
+            title="O que devo fazer antes da doação?"
+            content="Antes da doação, descanse bem, alimente-se de forma saudável (evite alimentos gordurosos por pelo menos 3 horas) e hidrate-se bem."
+          />
           <InfoBox
             title="Quem pode doar sangue?"
-            content="Pessoas entre 16 e 69 anos, pesando mais de 50kg, em boas condições de saúde."
+            content="Pessoas entre 16 e 69 anos, com peso acima de 50 kg e em boas condições de saúde. Menores de 18 anos precisam de consentimento dos responsáveis.."
           />
           <InfoBox
-            title="Frequência de doação"
-            content="Homens podem doar a cada 2 meses, até 4 vezes ao ano. Mulheres podem doar a cada 3 meses, até 3 vezes ao ano."
+            title="Tenho que ficar de jejum?"
+            content="Você não deve estar em jejum. Coma algo leve e evite alimentos gordurosos por pelo menos 3 horas antes da doação."
+          />
+          <Text style={styles.labelsmall}>Durante a doação</Text>
+          <InfoBox
+            title="O que devo fazer durante a doação?"
+            content="Durante a doação, fique relaxado, siga as instruções do profissional, mantenha o braço imóvel e respire calmamente."
           />
           <InfoBox
-            title="Benefícios da doação"
+            title="Quanto tempo dura uma doação?"
+            content="A doação de sangue dura, em média, de 40 a 60 minutos, incluindo o processo de triagem e recuperação. A coleta em si leva cerca de 15 minutos."
+          />
+          <Text style={styles.labelsmall}>Depois da doação</Text>
+          <InfoBox
+            title="O que devo fazer depois da doação?"
+            content="Após a doação, descanse por alguns minutos, beba líquidos, evite esforço físico por pelo menos 12 horas e mantenha uma alimentação saudável para ajudar na reposição do sangue."
+          />
+          <InfoBox
+            title="Quando posso doar novamente?"
+            content="Homens podem doar a cada 3 meses, até 4 vezes ao ano. Mulheres podem doar a cada 4 meses, até 3 vezes ao ano."
+          />
+          <InfoBox
+            title="Quais os benefícios da doação?"
             content="Além de salvar vidas, a doação de sangue oferece um check-up de saúde gratuito e ajuda a renovar o sangue do doador."
           />
         </ScrollView>
@@ -134,6 +157,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 24,
+    color: "#E0E0E0",
+    marginBottom: 15,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  labelsmall: {
+    fontSize: 22,
     color: "#E0E0E0",
     marginBottom: 15,
     textAlign: "center",

@@ -23,6 +23,7 @@ interface LevelIndicatorProps {
   emoji: string;
 }
 
+// Componente que exibe o nível e um emoji correspondente
 const LevelIndicator: React.FC<LevelIndicatorProps> = ({ level, emoji }) => (
   <View style={styles.levelIndicator}>
     <Text style={styles.levelText}>Nível</Text>
@@ -38,6 +39,7 @@ interface DonationItemProps {
   onDelete: (index: number) => void;
 }
 
+// Componente que exibe um item de doação
 const DonationItem: React.FC<DonationItemProps> = ({
   item,
   index,
@@ -47,6 +49,7 @@ const DonationItem: React.FC<DonationItemProps> = ({
   const scaleValue = useRef(new Animated.Value(1)).current;
   const opacityValue = useRef(new Animated.Value(0)).current;
 
+  // Animação ao pressionar o item
   const onPressIn = () => {
     Animated.spring(scaleValue, {
       toValue: 0.95,
@@ -54,6 +57,7 @@ const DonationItem: React.FC<DonationItemProps> = ({
     }).start();
   };
 
+  // Animação ao soltar o item
   const onPressOut = () => {
     Animated.spring(scaleValue, {
       toValue: 1,
@@ -61,6 +65,7 @@ const DonationItem: React.FC<DonationItemProps> = ({
     }).start();
   };
 
+  // Animação ao pressionar o botão de deletar
   const onDeletePressIn = () => {
     Animated.timing(opacityValue, {
       toValue: 1,
@@ -69,6 +74,7 @@ const DonationItem: React.FC<DonationItemProps> = ({
     }).start();
   };
 
+  // Animação ao soltar o botão de deletar
   const onDeletePressOut = () => {
     Animated.timing(opacityValue, {
       toValue: 0,
@@ -106,6 +112,7 @@ const DonationItem: React.FC<DonationItemProps> = ({
   );
 };
 
+// Componente principal da tela inicial
 export default function TelaInicial() {
   const [modalVisible, setModalVisible] = useState(false);
   const [notificationModalVisible, setNotificationModalVisible] =
@@ -115,12 +122,14 @@ export default function TelaInicial() {
   const [donations, setDonations] = useState<string[]>([]);
   const [reminderDate, setReminderDate] = useState(new Date());
 
+  // Carrega as doações armazenadas ao iniciar o componente
   useEffect(() => {
     AsyncStorage.getItem("donations").then((storedDonations) => {
       if (storedDonations) setDonations(JSON.parse(storedDonations));
     });
   }, []);
 
+  // Adiciona uma nova doação
   const addDonation = useCallback(async () => {
     const newDonations = [...donations, date.toISOString()].sort(
       (a, b) => new Date(b).getTime() - new Date(a).getTime()
@@ -130,6 +139,7 @@ export default function TelaInicial() {
     setModalVisible(false);
   }, [donations, date]);
 
+  // Deleta uma doação
   const deleteDonation = useCallback(
     async (index: number) => {
       const newDonations = donations.filter((_, i) => i !== index);
@@ -139,6 +149,7 @@ export default function TelaInicial() {
     [donations]
   );
 
+  // Retorna o emoji correspondente ao nível de doações
   const getLevelEmoji = useCallback(() => {
     if (donations.length >= 100) return "🏆";
     if (donations.length >= 50) return "🥇";
@@ -147,6 +158,7 @@ export default function TelaInicial() {
     return "🩸";
   }, [donations.length]);
 
+  // Agenda uma notificação padrão
   const scheduleNotification = useCallback(() => {
     Notifications.scheduleNotificationAsync({
       content: {
@@ -158,6 +170,7 @@ export default function TelaInicial() {
     setNotificationModalVisible(false);
   }, []);
 
+  // Agenda uma notificação personalizada
   const scheduleCustomNotification = useCallback(() => {
     Notifications.scheduleNotificationAsync({
       content: {
@@ -312,7 +325,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#121212",
     paddingHorizontal: 20,
-    paddingBottom: 60, // Add this line
+    paddingBottom: 60, // Adiciona esta linha
   },
   levelIndicator: {
     alignItems: "center",
@@ -320,7 +333,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1E1E1E",
     borderRadius: 15,
     paddingVertical: 20,
-    paddingHorizontal: 40, // Increased horizontal padding
+    paddingHorizontal: 40, // Aumenta o padding horizontal
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
