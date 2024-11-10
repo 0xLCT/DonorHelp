@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  Clipboard,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -134,11 +135,15 @@ export default function ProfileScreen() {
     return "🩸";
   }, [donations.length]);
 
+  const copyToClipboard = useCallback(() => {
+    Clipboard.setString(exportedData);
+  }, [exportedData]);
+
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient colors={["#1A1A1A", "#121212"]} style={styles.gradient}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={null}
           style={styles.keyboardAvoidingView}
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -274,7 +279,7 @@ export default function ProfileScreen() {
             ) : (
               <TextInput
                 style={styles.modalInput}
-                placeholder="Paste JSON data here"
+                placeholder="Cole os dados aqui"
                 placeholderTextColor="#888"
                 value={importedData}
                 onChangeText={setImportedData}
@@ -282,19 +287,27 @@ export default function ProfileScreen() {
               />
             )}
             <View style={styles.modalButtonContainer}>
+              {modalContent === "export" && (
+                <AnimatedPressable
+                  style={styles.modalButton}
+                  onPress={copyToClipboard}
+                >
+                  <Text style={styles.modalButtonText}>Copiar</Text>
+                </AnimatedPressable>
+              )}
               {modalContent === "import" && (
                 <AnimatedPressable
                   style={styles.modalButton}
                   onPress={importProfileData}
                 >
-                  <Text style={styles.modalButtonText}>Import</Text>
+                  <Text style={styles.modalButtonText}>Importar</Text>
                 </AnimatedPressable>
               )}
               <AnimatedPressable
                 style={styles.modalButton}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.modalButtonText}>Close</Text>
+                <Text style={styles.modalButtonText}>Fechar</Text>
               </AnimatedPressable>
             </View>
           </View>

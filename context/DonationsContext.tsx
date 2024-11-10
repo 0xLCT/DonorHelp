@@ -1,4 +1,10 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DonationsContext = createContext<DonationsContextType | null>(null);
@@ -26,6 +32,20 @@ export const DonationsProvider = ({ children }: DonationsProviderProps) => {
     };
     loadDonations();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const storedDonations = await AsyncStorage.getItem("donations");
+      if (storedDonations) {
+        const parsedDonations = JSON.parse(storedDonations);
+        if (JSON.stringify(parsedDonations) !== JSON.stringify(donations)) {
+          setDonations(parsedDonations);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [donations]);
 
   const addDonation = async (date: Date) => {
     const newDonations = [...donations, date].sort(

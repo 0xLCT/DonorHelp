@@ -1,9 +1,9 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { BlurView } from 'expo-blur';
-import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { BlurView } from "expo-blur";
+import { StyleSheet, View, Keyboard } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 const TabBarIcon = ({ name, color }) => {
   return <Ionicons name={name} size={24} color={color} />;
@@ -11,21 +11,48 @@ const TabBarIcon = ({ name, color }) => {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#BB86FC',
-        tabBarInactiveTintColor: '#FFFFFF',
-        tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: 'transparent',
-          borderTopWidth: 0,
-          elevation: 0,
-          height: 60 + insets.bottom,
-        },
+        tabBarActiveTintColor: "#BB86FC",
+        tabBarInactiveTintColor: "#FFFFFF",
+        tabBarStyle: isKeyboardVisible
+          ? { display: "none" }
+          : {
+              position: "absolute",
+              backgroundColor: "transparent",
+              borderTopWidth: 0,
+              elevation: 0,
+              height: 60 + insets.bottom,
+            },
         tabBarBackground: () => (
-          <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
+          <BlurView
+            tint="dark"
+            intensity={100}
+            style={StyleSheet.absoluteFill}
+          />
         ),
         headerShown: false,
         tabBarItemStyle: {
@@ -36,10 +63,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: "Inicio",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? 'home' : 'home-outline'}
+              name={focused ? "home" : "home-outline"}
               color={color}
             />
           ),
@@ -48,10 +75,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="exames"
         options={{
-          title: 'Exames',
+          title: "Exames",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? 'flask' : 'flask-outline'}
+              name={focused ? "flask" : "flask-outline"}
               color={color}
             />
           ),
@@ -60,10 +87,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="info"
         options={{
-          title: 'Info',
+          title: "Info",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? 'information-circle' : 'information-circle-outline'}
+              name={
+                focused ? "information-circle" : "information-circle-outline"
+              }
               color={color}
             />
           ),
@@ -72,10 +101,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="perfil"
         options={{
-          title: 'Perfil',
+          title: "Perfil",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? 'person' : 'person-outline'}
+              name={focused ? "person" : "person-outline"}
               color={color}
             />
           ),
@@ -87,7 +116,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,

@@ -12,9 +12,9 @@ import {
   Animated,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
+import { useDonations } from "@/context/DonationsContext";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -33,7 +33,7 @@ const LevelIndicator: React.FC<LevelIndicatorProps> = ({ level, emoji }) => (
 );
 
 interface DonationItemProps {
-  item: string;
+  item: Date;
   index: number;
   totalDonations: number;
   onDelete: (index: number) => void;
@@ -90,7 +90,10 @@ const DonationItem: React.FC<DonationItemProps> = ({
       onPressOut={onPressOut}
     >
       <Text style={styles.text}>
-        #{totalDonations - index} {new Date(item).toLocaleDateString("en-GB")}
+        #{totalDonations - index}{" "}
+        {item instanceof Date
+          ? item.toLocaleDateString("en-GB")
+          : "Invalid Date"}
       </Text>
       <Pressable
         onPress={() => onDelete(index)}
@@ -119,35 +122,15 @@ export default function TelaInicial() {
     useState(false);
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [donations, setDonations] = useState<string[]>([]);
   const [reminderDate, setReminderDate] = useState(new Date());
 
-  // Carrega as doações armazenadas ao iniciar o componente
-  useEffect(() => {
-    AsyncStorage.getItem("donations").then((storedDonations) => {
-      if (storedDonations) setDonations(JSON.parse(storedDonations));
-    });
-  }, []);
+  const { donations, addDonation, deleteDonation } = useDonations();
 
   // Adiciona uma nova doação
-  const addDonation = useCallback(async () => {
-    const newDonations = [...donations, date.toISOString()].sort(
-      (a, b) => new Date(b).getTime() - new Date(a).getTime()
-    );
-    setDonations(newDonations);
-    await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
+  const handleAddDonation = useCallback(async () => {
+    await addDonation(date);
     setModalVisible(false);
-  }, [donations, date]);
-
-  // Deleta uma doação
-  const deleteDonation = useCallback(
-    async (index: number) => {
-      const newDonations = donations.filter((_, i) => i !== index);
-      setDonations(newDonations);
-      await AsyncStorage.setItem("donations", JSON.stringify(newDonations));
-    },
-    [donations]
-  );
+  }, [addDonation, date]);
 
   // Retorna o emoji correspondente ao nível de doações
   const getLevelEmoji = useCallback(() => {
@@ -207,7 +190,7 @@ export default function TelaInicial() {
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item, index }) => (
             <DonationItem
-              item={item}
+              item={new Date(item)}
               index={index}
               totalDonations={donations.length}
               onDelete={deleteDonation}
@@ -248,7 +231,7 @@ export default function TelaInicial() {
                 </Pressable>
                 <Pressable
                   style={[styles.button, styles.confirmButton]}
-                  onPress={addDonation}
+                  onPress={handleAddDonation}
                 >
                   <Text style={styles.confirmButtonText}>Confirmar</Text>
                 </Pressable>
